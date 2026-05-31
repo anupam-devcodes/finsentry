@@ -281,11 +281,10 @@ Local installation and environment setup instructions will be added after the in
 ---
 
 ## Author
-Built by **Anupam Choubey**
-Built as a full-stack project with a focus on practical engineering, learning, and real-world financial problem solving.
+Built by **Anupam Choubey** as a full-stack project with a focus on practical engineering, learning, and real-world financial problem solving.
 
 ---
 
 ## Note
 
-This repository documents the complete development journey of LedgerLens AI. Features marked as planned will be implemented, tested and documented step by step during development.
+This repository documents the complete development journey of FinSentry AI. Features marked as planned will be implemented, tested and documented step by step during development.
