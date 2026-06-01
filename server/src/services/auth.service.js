@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import AppError from "../utils/app-error.js";
+import generateToken from "../utils/generate-token.js";
 
 export const registerUser = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
@@ -23,5 +24,31 @@ export const registerUser = async ({ name, email, password }) => {
     email: user.email,
     profilePictureUrl: user.profilePictureUrl,
     createdAt: user.createdAt,
+  };
+};
+
+export const loginUser = async ({ email, password }) => {
+  const user = await User.findOne({ email }).select("+passwordHash");
+
+  if (!user) {
+    throw new AppError("Invalid email or password.", 401);
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash);
+
+  if (!isPasswordCorrect) {
+    throw new AppError("Invalid email or password.", 401);
+  }
+
+  const token = generateToken(user._id);
+
+  return {
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      profilePictureUrl: user.profilePictureUrl,
+    },
   };
 };
