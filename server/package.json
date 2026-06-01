@@ -1,0 +1,20 @@
+{
+  "name": "finsentry-server",
+  "version": "1.0.0",
+  "description": "Backend API for the FinSentry AI-powered personal finance analytics platform.",
+  "main": "src/index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "author": "Anupam Choubey",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
