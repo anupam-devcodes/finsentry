@@ -3,6 +3,7 @@ import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import transactionRoutes from "./routes/transaction.route.js";
 import errorHandler from "./middleware/error.middleware.js";
+import analyticsRoutes from "./routes/analytics.route.js";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use(errorHandler);
 
