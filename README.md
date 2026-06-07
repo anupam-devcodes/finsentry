@@ -2,7 +2,7 @@
 
 ### AI-Powered Personal Finance Analytics Platform
 
-LedgerLens AI is a full-stack personal finance management platform being built with the MERN stack. It is designed to help users track income and expenses, understand spending behaviour through interactive analytics, manage recurring transactions, import financial records, and receive AI-generated financial insights.
+Finsentry AI is a full-stack personal finance management platform being built with the MERN stack. It is designed to help users track income and expenses, understand spending behaviour through interactive analytics, manage recurring transactions, import financial records, and receive AI-generated financial insights.
 
 This project is being developed from scratch as a major full-stack placement project, with a strong focus on scalable backend architecture, secure authentication, meaningful analytics, AI integration, deployment readiness, and clear engineering documentation.
 
