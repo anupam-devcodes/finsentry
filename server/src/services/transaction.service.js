@@ -58,13 +58,84 @@ export const createTransaction = async (userId, transactionData) => {
   return formatTransaction(transaction);
 };
 
-export const getUserTransactions = async (userId) => {
-  const transactions = await Transaction.find({ user: userId }).sort({
-    date: -1,
-    createdAt: -1,
-  });
+export const getUserTransactions = async (userId, queryOptions = {}) => {
+  const {
+    type,
+    category,
+    paymentMethod,
+    search,
+    startDate,
+    endDate,
+    page,
+    limit,
+    sortBy,
+    sortOrder,
+  } = queryOptions;
 
-  return transactions.map(formatTransaction);
+  const filter = {
+    user: userId,
+  };
+
+  if (type) {
+    filter.type = type;
+  }
+
+  if (category) {
+    filter.category = new RegExp(`^${category}$`, "i");
+  }
+
+  if (paymentMethod) {
+    filter.paymentMethod = paymentMethod;
+  }
+
+  if (startDate || endDate) {
+    filter.date = {};
+
+    if (startDate) {
+      filter.date.$gte = startDate;
+    }
+
+    if (endDate) {
+      filter.date.$lte = endDate;
+    }
+  }
+
+  if (search) {
+    const searchRegex = new RegExp(search, "i");
+
+    filter.$or = [
+      { category: searchRegex },
+      { description: searchRegex },
+    ];
+  }
+
+  const skip = (page - 1) * limit;
+
+  const sortField = sortBy === "amount" ? "amountInPaise" : sortBy;
+  const sortDirection = sortOrder === "asc" ? 1 : -1;
+
+  const [transactions, totalResults] = await Promise.all([
+    Transaction.find(filter)
+      .sort({ [sortField]: sortDirection, createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Transaction.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.ceil(totalResults / limit);
+
+  return {
+    transactions: transactions.map(formatTransaction),
+    pagination: {
+      page,
+      limit,
+      totalResults,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
+  };
 };
 
 const validateTransactionId = (transactionId) => {

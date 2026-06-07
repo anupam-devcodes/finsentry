@@ -20,14 +20,15 @@ export const createTransactionController = asyncHandler(async (req, res) => {
 });
 
 export const getTransactionsController = asyncHandler(async (req, res) => {
-  const transactions = await getUserTransactions(req.user._id);
+  const result = await getUserTransactions(req.user._id, req.validatedQuery);
 
   res.status(200).json({
     success: true,
     message: "Transactions retrieved successfully.",
-    results: transactions.length,
+    results: result.transactions.length,
+    pagination: result.pagination,
     data: {
-      transactions,
+      transactions: result.transactions,
     },
   });
 });

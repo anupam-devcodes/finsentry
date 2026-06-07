@@ -130,3 +130,70 @@ export const updateTransactionSchema = z
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field is required to update the transaction",
   });   
+
+  export const getTransactionsQuerySchema = z.object({
+  type: z
+    .enum(["income", "expense"], {
+      message: "Transaction type must be either income or expense",
+    })
+    .optional(),
+
+  category: z
+    .string()
+    .trim()
+    .min(1, "Category cannot be empty")
+    .optional(),
+
+  paymentMethod: z
+    .enum(paymentMethods, {
+      message: "Invalid payment method",
+    })
+    .optional(),
+
+  search: z
+    .string()
+    .trim()
+    .min(1, "Search cannot be empty")
+    .optional(),
+
+  startDate: z.coerce
+    .date({
+      message: "Enter a valid start date",
+    })
+    .optional(),
+
+  endDate: z.coerce
+    .date({
+      message: "Enter a valid end date",
+    })
+    .optional(),
+
+  page: z.coerce
+    .number()
+    .int("Page must be a whole number")
+    .min(1, "Page must be at least 1")
+    .optional()
+    .default(1),
+
+  limit: z.coerce
+    .number()
+    .int("Limit must be a whole number")
+    .min(1, "Limit must be at least 1")
+    .max(100, "Limit cannot exceed 100")
+    .optional()
+    .default(10),
+
+  sortBy: z
+    .enum(["date", "amount", "createdAt"], {
+      message: "Invalid sort field",
+    })
+    .optional()
+    .default("date"),
+
+  sortOrder: z
+    .enum(["asc", "desc"], {
+      message: "Sort order must be asc or desc",
+    })
+    .optional()
+    .default("desc"),
+});

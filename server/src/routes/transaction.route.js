@@ -10,6 +10,7 @@ import authenticate from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.middleware.js";
 import {
   createTransactionSchema,
+  getTransactionsQuerySchema,
   updateTransactionSchema,
 } from "../validators/transaction.validator.js";
 
@@ -20,7 +21,7 @@ router.use(authenticate);
 router
   .route("/")
   .post(validate(createTransactionSchema), createTransactionController)
-  .get(getTransactionsController);
+  .get(validate(getTransactionsQuerySchema, "query"), getTransactionsController);
 
 router
   .route("/:id")
