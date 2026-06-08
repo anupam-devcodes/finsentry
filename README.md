@@ -2,7 +2,7 @@
 
 ### AI-Powered Personal Finance Analytics Platform
 
-Finsentry AI is a full-stack personal finance management platform being built with the MERN stack. It is designed to help users track income and expenses, understand spending behaviour through interactive analytics, manage recurring transactions, import financial records, and receive AI-generated financial insights.
+FinSentry AI is a full-stack personal finance management platform being built with the MERN stack. It helps users securely track income and expenses, manage financial transactions, understand spending behaviour through analytics, and eventually receive AI-powered financial insights from receipts and monthly reports.
 
 This project is being developed from scratch as a major full-stack placement project, with a strong focus on scalable backend architecture, secure authentication, meaningful analytics, AI integration, deployment readiness, and clear engineering documentation.
 
@@ -12,7 +12,9 @@ This project is being developed from scratch as a major full-stack placement pro
 
 > **Under Active Development**
 
-The project is currently in the initial planning and architecture phase. Features will be implemented incrementally with proper testing, documentation, and version-controlled development.
+The backend foundation, authentication system, transaction management APIs, filtering, pagination, and dashboard analytics APIs have been implemented and tested.
+
+The project is currently focused on expanding backend capabilities before moving into frontend development and AI integrations.
 
 ---
 
@@ -27,40 +29,73 @@ Managing personal finances becomes difficult when income, daily expenses, bills,
 * Can my receipts be converted into transactions automatically?
 * Can I receive useful monthly insights without manually calculating everything?
 
-FinSentry AI aims to solve this by bringing transaction tracking, analytics, automation, and AI-powered financial insights into one organised platform.
+FinSentry AI aims to solve this by combining transaction tracking, analytics, automation, and AI-powered financial insights into one organised platform.
+
+---
+
+## Features Implemented So Far
+
+### Backend Foundation
+
+* Node.js and Express backend setup
+* Environment variable configuration
+* MongoDB Atlas connection using Mongoose
+* Modular backend folder architecture
+* Centralised error handling
+* Reusable async error handler
+* Request validation system using Zod
+
+### Authentication and User Management
+
+* User model with secure password storage
+* User registration API
+* User login API
+* Password hashing using bcryptjs
+* JWT token generation
+* Protected routes using authentication middleware
+* Current logged-in user API
+
+### Transaction Management
+
+* Transaction model with user ownership
+* Create income or expense transaction
+* Get all transactions of logged-in user
+* Get single transaction by ID
+* Update transaction
+* Delete transaction
+* User-specific transaction access protection
+* Amount storage in paise for better money precision
+
+### Transaction Filtering and Pagination
+
+* Filter transactions by type
+* Filter by category
+* Filter by payment method
+* Search transactions by category or description
+* Date-range filtering
+* Pagination support
+* Sorting by date, amount, or creation time
+
+### Analytics Dashboard APIs
+
+* Total income calculation
+* Total expense calculation
+* Current balance calculation
+* Income and expense transaction counts
+* Category-wise expense breakdown
+* Recent transactions
+* Monthly income-versus-expense trend using MongoDB aggregation pipelines
 
 ---
 
 ## Planned Core Features
 
-### Authentication and User Management
-
-* Secure user registration and login
-* JWT-based authentication
-* Protected user dashboard
-* User profile management
-
-### Transaction Management
-
-* Add, view, update and delete income or expense transactions
-* Categorise transactions such as food, rent, travel, salary and entertainment
-* Filter transactions by date, type and category
-* Bulk transaction actions
-
-### Financial Analytics Dashboard
-
-* Total income, total expenses and current balance
-* Monthly income-versus-expense visualisation
-* Category-wise expense breakdown
-* Top spending category analysis
-* Date-range based financial summaries
-
 ### AI Receipt Scanning
 
-* Upload a receipt image
+* Upload receipt images
 * Store uploaded files securely using Cloudinary
 * Extract transaction information using Gemini AI
-* Convert scanned receipt details into an expense transaction
+* Convert scanned receipt details into expense transactions
 
 ### CSV Import
 
@@ -70,7 +105,7 @@ FinSentry AI aims to solve this by bringing transaction tracking, analytics, aut
 
 ### Recurring Transactions
 
-* Support recurring expenses and incomes such as rent, subscriptions or salary
+* Support recurring incomes and expenses such as rent, subscriptions, and salary
 * Automatically generate due transactions using scheduled cron jobs
 
 ### AI-Generated Monthly Reports
@@ -79,16 +114,26 @@ FinSentry AI aims to solve this by bringing transaction tracking, analytics, aut
 * Generate intelligent spending insights using Gemini AI
 * Deliver monthly financial reports through email using Resend
 
+### Frontend Application
+
+* React-based user interface
+* Authentication screens
+* Protected dashboard
+* Transaction management screens
+* Analytics charts
+* Reports and settings pages
+
 ---
 
-## Planned Technology Stack
+## Technology Stack
 
 | Layer           | Technology                                   |
 | --------------- | -------------------------------------------- |
 | Frontend        | React.js, JavaScript, Tailwind CSS, Recharts |
 | Backend         | Node.js, Express.js, JavaScript              |
 | Database        | MongoDB with Mongoose                        |
-| Authentication  | JWT and Passport.js                          |
+| Authentication  | JWT, bcryptjs                                |
+| Validation      | Zod                                          |
 | AI Integration  | Google Gemini AI                             |
 | File Storage    | Cloudinary                                   |
 | Email Service   | Resend                                       |
@@ -113,6 +158,7 @@ Node.js + Express Backend
  │
  ├── Authenticates users
  ├── Handles transactions
+ ├── Validates request data
  ├── Generates analytics
  ├── Processes CSV imports
  ├── Runs scheduled jobs
@@ -134,30 +180,31 @@ External Integrations:
 
 ---
 
-## Planned Backend Architecture
+## Backend Architecture
 
-The backend will follow a layered architecture so that each part of the application has a clear responsibility.
+The backend follows a layered architecture where each folder has a clear responsibility.
 
 ```text
-backend/
+server/
 └── src/
     ├── config/          # Database and external service configuration
     ├── routes/          # API endpoint definitions
     ├── controllers/     # Request and response handling
     ├── services/        # Main business logic
     ├── models/          # MongoDB schemas and database structure
-    ├── middleware/      # Authentication and error-handling checks
+    ├── middleware/      # Authentication, validation and error-handling middleware
     ├── validators/      # Incoming data validation rules
     ├── utils/           # Reusable helper functions
     ├── mailers/         # Email generation and delivery logic
     ├── cron/            # Scheduled jobs for automation
-    └── index.js         # Backend application entry point
+    ├── app.js           # Express app configuration
+    └── index.js         # Backend entry point
 ```
 
 ### Backend Request Flow
 
 ```text
-Frontend Request
+Client Request
       ↓
 Route
       ↓
@@ -171,10 +218,58 @@ Model
       ↓
 MongoDB
       ↓
-Response returned to Frontend
+Response returned to Client
 ```
 
-This architecture keeps the codebase organised, maintainable and easier to scale as new features are added.
+This architecture keeps the codebase organised, maintainable, and easier to scale as new features are added.
+
+---
+
+## Current API Modules
+
+### Authentication APIs
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+GET  /api/users/me
+```
+
+### Transaction APIs
+
+```text
+POST   /api/transactions
+GET    /api/transactions
+GET    /api/transactions/:id
+PATCH  /api/transactions/:id
+DELETE /api/transactions/:id
+```
+
+### Transaction Filtering Examples
+
+```text
+GET /api/transactions?type=expense
+GET /api/transactions?category=Food
+GET /api/transactions?search=Lunch
+GET /api/transactions?page=1&limit=10
+GET /api/transactions?sortBy=amount&sortOrder=asc
+```
+
+### Analytics APIs
+
+```text
+GET /api/analytics/dashboard
+```
+
+The dashboard analytics API currently returns:
+
+* Total income
+* Total expense
+* Balance
+* Income and expense transaction counts
+* Expense breakdown by category
+* Recent transactions
+* Monthly income-versus-expense trend
 
 ---
 
@@ -184,38 +279,42 @@ This architecture keeps the codebase organised, maintainable and easier to scale
 
 * [x] Finalise product idea and project direction
 * [x] Choose JavaScript-based implementation approach
-* [ ] Create GitHub repository and connect local development environment
-* [ ] Define complete application architecture
+* [x] Create GitHub repository and connect local development environment
+* [x] Define backend architecture
 
 ### Phase 1: Backend Foundation
 
-* [ ] Initialise Node.js backend
-* [ ] Configure Express server
-* [ ] Set up environment variables
-* [ ] Connect MongoDB database
-* [ ] Establish error-handling structure
+* [x] Initialise Node.js backend
+* [x] Configure Express server
+* [x] Set up environment variables
+* [x] Connect MongoDB database
+* [x] Establish error-handling structure
+* [x] Add reusable validation middleware
 
 ### Phase 2: Authentication
 
-* [ ] Create user model
-* [ ] Implement registration
-* [ ] Implement login
-* [ ] Add password hashing
-* [ ] Add JWT authentication
-* [ ] Build protected routes
+* [x] Create user model
+* [x] Implement registration
+* [x] Implement login
+* [x] Add password hashing
+* [x] Add JWT authentication
+* [x] Build protected routes
 
 ### Phase 3: Transaction Management
 
-* [ ] Design transaction model
-* [ ] Implement transaction CRUD APIs
-* [ ] Add filtering and categorisation
+* [x] Design transaction model
+* [x] Implement transaction CRUD APIs
+* [x] Add filtering and categorisation
+* [x] Add search, sorting and pagination
 * [ ] Add bulk actions
 
 ### Phase 4: Analytics
 
-* [ ] Build financial summary APIs
-* [ ] Create MongoDB aggregation pipelines
-* [ ] Prepare dashboard chart data
+* [x] Build financial summary APIs
+* [x] Create MongoDB aggregation pipelines
+* [x] Prepare dashboard chart data
+* [x] Add monthly income-versus-expense trend
+* [ ] Add advanced date-range analytics
 
 ### Phase 5: Automation and AI
 
@@ -245,6 +344,47 @@ This architecture keeps the codebase organised, maintainable and easier to scale
 
 ---
 
+## Local Development Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/anupam-devcodes/finsentry.git
+cd finsentry
+```
+
+### 2. Install backend dependencies
+
+```bash
+cd server
+npm install
+```
+
+### 3. Create environment file
+
+Create a `.env` file inside the `server` folder.
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=7d
+```
+
+### 4. Run the backend server
+
+```bash
+npm run dev
+```
+
+The backend should run at:
+
+```text
+http://localhost:5000
+```
+
+---
+
 ## Engineering Goals
 
 This project is being developed with the following goals:
@@ -253,6 +393,7 @@ This project is being developed with the following goals:
 * Understand and implement clean backend architecture
 * Work with real-world authentication and protected APIs
 * Use MongoDB aggregation pipelines for meaningful analytics
+* Store and process financial data carefully
 * Integrate AI in a practical and user-focused manner
 * Implement scheduled background automation
 * Maintain clean Git commit history and documentation
@@ -274,17 +415,12 @@ After the core version is completed, possible improvements may include:
 
 ---
 
-## Local Development Setup
-
-Local installation and environment setup instructions will be added after the initial backend and frontend project structures are created.
-
----
-
 ## Author
+
 Built by **Anupam Choubey** as a full-stack project with a focus on practical engineering, learning, and real-world financial problem solving.
 
 ---
 
 ## Note
 
-This repository documents the complete development journey of FinSentry AI. Features marked as planned will be implemented, tested and documented step by step during development.
+This repository documents the complete development journey of FinSentry AI. The project is being built incrementally with tested backend modules, clean architecture, and practical feature development.
