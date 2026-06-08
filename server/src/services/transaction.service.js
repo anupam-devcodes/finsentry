@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Transaction from "../models/transaction.model.js";
 import AppError from "../utils/app-error.js";
+import { parse } from "csv-parse/sync";
+import { csvTransactionRowSchema } from "../validators/csv-transaction.validator.js";
 
 const convertRupeesToPaise = (amount) => {
   return Math.round(amount * 100);
@@ -243,5 +245,75 @@ export const bulkDeleteTransactions = async (userId, transactionIds) => {
   return {
     requestedCount: transactionIds.length,
     deletedCount: result.deletedCount,
+  };
+};
+
+export const importTransactionsFromCsv = async (userId, file) => {
+  if (!file) {
+    throw new AppError("CSV file is required.", 400);
+  }
+
+  const csvText = file.buffer.toString("utf-8");
+
+  let rows;
+
+  try {
+    rows = parse(csvText, {
+    columns: true,
+    skip_empty_lines: true,
+    trim: true,
+    bom: true,
+    });
+  } catch (error) {
+    throw new AppError("Invalid CSV file format.", 400);
+  }
+
+  if (!rows.length) {
+    throw new AppError("CSV file does not contain any transaction rows.", 400);
+  }
+
+  const validationErrors = [];
+  const transactionsToInsert = [];
+
+  rows.forEach((row, index) => {
+    const result = csvTransactionRowSchema.safeParse(row);
+
+    if (!result.success) {
+      validationErrors.push({
+        row: index + 2,
+        errors: result.error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+
+      return;
+    }
+
+    const transaction = result.data;
+
+    transactionsToInsert.push({
+      user: userId,
+      type: transaction.type,
+      amountInPaise: convertRupeesToPaise(transaction.amount),
+      category: transaction.category,
+      description: transaction.description,
+      date: transaction.date,
+      paymentMethod: transaction.paymentMethod,
+    });
+  });
+
+  if (validationErrors.length > 0) {
+    const error = new AppError("CSV validation failed.", 400);
+    error.errors = validationErrors;
+    throw error;
+  }
+
+  const importedTransactions = await Transaction.insertMany(transactionsToInsert);
+
+  return {
+    totalRows: rows.length,
+    importedCount: importedTransactions.length,
+    transactions: importedTransactions.map(formatTransaction),
   };
 };

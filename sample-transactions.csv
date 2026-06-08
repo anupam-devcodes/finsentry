@@ -1,0 +1,4 @@
+﻿type,amount,category,description,date,paymentMethod
+income,50000,Salary,Monthly salary,2026-06-01,bank_transfer
+expense,850,Food,Lunch,2026-06-02,upi
+expense,12000,Rent,Monthly rent,2026-06-05,bank_transfer

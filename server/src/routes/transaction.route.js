@@ -5,6 +5,7 @@ import {
   deleteTransactionController,
   getTransactionByIdController,
   getTransactionsController,
+  importTransactionsController,
   updateTransactionController,
 } from "../controllers/transaction.controller.js";
 import authenticate from "../middleware/auth.middleware.js";
@@ -15,6 +16,7 @@ import {
   getTransactionsQuerySchema,
   updateTransactionSchema,
 } from "../validators/transaction.validator.js";
+import { uploadCsvFile } from "../middleware/upload.middleware.js";
 
 const router = Router();
 
@@ -25,11 +27,14 @@ router
   .post(validate(createTransactionSchema), createTransactionController)
   .get(validate(getTransactionsQuerySchema, "query"), getTransactionsController);
 
+router.post("/import", uploadCsvFile, importTransactionsController);
+
 router.delete(
   "/bulk",
   validate(bulkDeleteTransactionsSchema),
   bulkDeleteTransactionsController
 );
+
 
 router
   .route("/:id")

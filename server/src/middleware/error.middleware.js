@@ -10,10 +10,16 @@ const errorHandler = (error, req, res, next) => {
     console.error(error);
   }
 
-  res.status(statusCode).json({
+  const response = {
     success: false,
     message,
-  });
+  };
+
+  if (error.errors) {
+    response.errors = error.errors;
+  }
+
+  res.status(statusCode).json(response);
 };
 
 export default errorHandler;
