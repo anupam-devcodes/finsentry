@@ -19,6 +19,7 @@ const formatTransaction = (transaction) => {
 };
 
 export const getDashboardAnalytics = async (userId) => {
+  // 1. Total income, total expense, and count by transaction type
   const summaryByType = await Transaction.aggregate([
     {
       $match: {
@@ -45,6 +46,7 @@ export const getDashboardAnalytics = async (userId) => {
   const totalExpenseInPaise = expenseSummary?.totalAmountInPaise || 0;
   const balanceInPaise = totalIncomeInPaise - totalExpenseInPaise;
 
+  // 2. Expense breakdown by category
   const expenseByCategory = await Transaction.aggregate([
     {
       $match: {
@@ -70,6 +72,7 @@ export const getDashboardAnalytics = async (userId) => {
     },
   ]);
 
+  // 3. Latest 5 transactions
   const recentTransactions = await Transaction.find({
     user: userId,
   })
@@ -78,6 +81,47 @@ export const getDashboardAnalytics = async (userId) => {
       createdAt: -1,
     })
     .limit(5);
+
+  // 4. Monthly income vs expense trend
+  const monthlyTrendData = await Transaction.aggregate([
+    {
+      $match: {
+        user: userId,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          month: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$date",
+            },
+          },
+          type: "$type",
+        },
+        totalAmountInPaise: {
+          $sum: "$amountInPaise",
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id.month",
+        totals: {
+          $push: {
+            type: "$_id.type",
+            totalAmountInPaise: "$totalAmountInPaise",
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
+  ]);
 
   return {
     summary: {
@@ -97,6 +141,22 @@ export const getDashboardAnalytics = async (userId) => {
       totalAmountInPaise: category.totalAmountInPaise,
       count: category.count,
     })),
+
+    monthlyTrend: monthlyTrendData.map((monthData) => {
+      const income = monthData.totals.find((item) => item.type === "income");
+      const expense = monthData.totals.find((item) => item.type === "expense");
+
+      const incomeInPaise = income?.totalAmountInPaise || 0;
+      const expenseInPaise = expense?.totalAmountInPaise || 0;
+
+      return {
+        month: monthData._id,
+        income: convertPaiseToRupees(incomeInPaise),
+        incomeInPaise,
+        expense: convertPaiseToRupees(expenseInPaise),
+        expenseInPaise,
+      };
+    }),
 
     recentTransactions: recentTransactions.map(formatTransaction),
   };
