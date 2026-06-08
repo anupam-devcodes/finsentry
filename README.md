@@ -2,7 +2,7 @@
 
 ### AI-Powered Personal Finance Analytics Platform
 
-FinSentry AI is a full-stack personal finance management platform being built with the MERN stack. It helps users securely track income and expenses, manage financial transactions, understand spending behaviour through analytics, and eventually receive AI-powered financial insights from receipts and monthly reports.
+FinSentry AI is a full-stack personal finance management platform being built with the MERN stack. It helps users securely track income and expenses, manage financial transactions, understand spending behaviour through analytics, import transaction history using CSV files, and eventually receive AI-powered financial insights from receipts and monthly reports.
 
 This project is being developed from scratch as a major full-stack placement project, with a strong focus on scalable backend architecture, secure authentication, meaningful analytics, AI integration, deployment readiness, and clear engineering documentation.
 
@@ -12,9 +12,9 @@ This project is being developed from scratch as a major full-stack placement pro
 
 > **Under Active Development**
 
-The backend foundation, authentication system, transaction management APIs, filtering, pagination, and dashboard analytics APIs have been implemented and tested.
+The backend foundation, authentication system, transaction management APIs, filtering, pagination, bulk delete, CSV import, and dashboard analytics APIs have been implemented and tested.
 
-The project is currently focused on expanding backend capabilities before moving into frontend development and AI integrations.
+The project is currently focused on expanding backend capabilities before moving into frontend development, receipt upload, AI integrations, recurring transactions, and email-based reports.
 
 ---
 
@@ -29,7 +29,7 @@ Managing personal finances becomes difficult when income, daily expenses, bills,
 * Can my receipts be converted into transactions automatically?
 * Can I receive useful monthly insights without manually calculating everything?
 
-FinSentry AI aims to solve this by combining transaction tracking, analytics, automation, and AI-powered financial insights into one organised platform.
+FinSentry AI aims to solve this by combining transaction tracking, analytics, CSV imports, automation, and AI-powered financial insights into one organised platform.
 
 ---
 
@@ -63,6 +63,7 @@ FinSentry AI aims to solve this by combining transaction tracking, analytics, au
 * Get single transaction by ID
 * Update transaction
 * Delete transaction
+* Bulk delete selected transactions
 * User-specific transaction access protection
 * Amount storage in paise for better money precision
 
@@ -75,6 +76,19 @@ FinSentry AI aims to solve this by combining transaction tracking, analytics, au
 * Date-range filtering
 * Pagination support
 * Sorting by date, amount, or creation time
+
+### CSV Transaction Import
+
+* CSV file upload using Multer
+* Temporary in-memory file handling
+* CSV parsing using csv-parse
+* UTF-8 BOM handling for CSV headers
+* Row-level validation using Zod
+* Import transaction history from CSV files
+* Convert imported rupee amounts into paise before saving
+* Attach logged-in user ownership to every imported transaction
+* Bulk insertion using MongoDB `insertMany()`
+* Import summary with total rows and imported count
 
 ### Analytics Dashboard APIs
 
@@ -90,23 +104,18 @@ FinSentry AI aims to solve this by combining transaction tracking, analytics, au
 
 ## Planned Core Features
 
-### AI Receipt Scanning
+### Receipt Upload and AI Receipt Scanning
 
 * Upload receipt images
 * Store uploaded files securely using Cloudinary
 * Extract transaction information using Gemini AI
-* Convert scanned receipt details into expense transactions
-
-### CSV Import
-
-* Upload transaction history using CSV files
-* Validate imported data before saving
-* Add multiple transactions efficiently
+* Convert scanned receipt details into expense transaction drafts
 
 ### Recurring Transactions
 
 * Support recurring incomes and expenses such as rent, subscriptions, and salary
 * Automatically generate due transactions using scheduled cron jobs
+* Track next recurring transaction date
 
 ### AI-Generated Monthly Reports
 
@@ -120,6 +129,7 @@ FinSentry AI aims to solve this by combining transaction tracking, analytics, au
 * Authentication screens
 * Protected dashboard
 * Transaction management screens
+* CSV import interface
 * Analytics charts
 * Reports and settings pages
 
@@ -134,11 +144,12 @@ FinSentry AI aims to solve this by combining transaction tracking, analytics, au
 | Database        | MongoDB with Mongoose                        |
 | Authentication  | JWT, bcryptjs                                |
 | Validation      | Zod                                          |
+| File Upload     | Multer                                       |
+| CSV Processing  | csv-parse                                    |
 | AI Integration  | Google Gemini AI                             |
 | File Storage    | Cloudinary                                   |
 | Email Service   | Resend                                       |
 | Scheduled Jobs  | Node Cron                                    |
-| CSV Processing  | CSV parsing and validation tools             |
 | Version Control | Git and GitHub                               |
 
 ---
@@ -159,8 +170,9 @@ Node.js + Express Backend
  ├── Authenticates users
  ├── Handles transactions
  ├── Validates request data
+ ├── Imports CSV transaction history
  ├── Generates analytics
- ├── Processes CSV imports
+ ├── Processes receipt uploads
  ├── Runs scheduled jobs
  └── Communicates with external services
  │
@@ -192,8 +204,8 @@ server/
     ├── controllers/     # Request and response handling
     ├── services/        # Main business logic
     ├── models/          # MongoDB schemas and database structure
-    ├── middleware/      # Authentication, validation and error-handling middleware
-    ├── validators/      # Incoming data validation rules
+    ├── middleware/      # Authentication, validation, upload and error-handling middleware
+    ├── validators/      # Incoming data and CSV row validation rules
     ├── utils/           # Reusable helper functions
     ├── mailers/         # Email generation and delivery logic
     ├── cron/            # Scheduled jobs for automation
@@ -243,6 +255,7 @@ GET    /api/transactions
 GET    /api/transactions/:id
 PATCH  /api/transactions/:id
 DELETE /api/transactions/:id
+DELETE /api/transactions/bulk
 ```
 
 ### Transaction Filtering Examples
@@ -253,6 +266,33 @@ GET /api/transactions?category=Food
 GET /api/transactions?search=Lunch
 GET /api/transactions?page=1&limit=10
 GET /api/transactions?sortBy=amount&sortOrder=asc
+```
+
+### CSV Import API
+
+```text
+POST /api/transactions/import
+```
+
+The CSV import API accepts a CSV file using the form-data field name:
+
+```text
+file
+```
+
+Expected CSV columns:
+
+```text
+type,amount,category,description,date,paymentMethod
+```
+
+Example CSV:
+
+```csv
+type,amount,category,description,date,paymentMethod
+income,50000,Salary,Monthly salary,2026-06-01,bank_transfer
+expense,850,Food,Lunch,2026-06-02,upi
+expense,12000,Rent,Monthly rent,2026-06-05,bank_transfer
 ```
 
 ### Analytics APIs
@@ -306,7 +346,8 @@ The dashboard analytics API currently returns:
 * [x] Implement transaction CRUD APIs
 * [x] Add filtering and categorisation
 * [x] Add search, sorting and pagination
-* [ ] Add bulk actions
+* [x] Add bulk delete action
+* [x] Implement CSV transaction imports
 
 ### Phase 4: Analytics
 
@@ -316,14 +357,13 @@ The dashboard analytics API currently returns:
 * [x] Add monthly income-versus-expense trend
 * [ ] Add advanced date-range analytics
 
-### Phase 5: Automation and AI
+### Phase 5: Automation, Files and AI
 
 * [ ] Integrate Cloudinary receipt upload
 * [ ] Integrate Gemini AI receipt scanning
-* [ ] Implement CSV imports
 * [ ] Implement recurring transactions
 * [ ] Implement monthly AI financial reports
-* [ ] Integrate email delivery
+* [ ] Integrate email delivery using Resend
 
 ### Phase 6: Frontend Development
 
@@ -331,6 +371,7 @@ The dashboard analytics API currently returns:
 * [ ] Build authentication screens
 * [ ] Build dashboard
 * [ ] Build transaction management screens
+* [ ] Build CSV import screen
 * [ ] Build analytics charts
 * [ ] Build reports and settings pages
 
@@ -366,7 +407,7 @@ Create a `.env` file inside the `server` folder.
 
 ```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
+MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=7d
 ```
@@ -394,6 +435,7 @@ This project is being developed with the following goals:
 * Work with real-world authentication and protected APIs
 * Use MongoDB aggregation pipelines for meaningful analytics
 * Store and process financial data carefully
+* Handle CSV imports with validation and user ownership
 * Integrate AI in a practical and user-focused manner
 * Implement scheduled background automation
 * Maintain clean Git commit history and documentation
