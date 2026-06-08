@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  bulkDeleteTransactionsController,
   createTransactionController,
   deleteTransactionController,
   getTransactionByIdController,
@@ -9,6 +10,7 @@ import {
 import authenticate from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.middleware.js";
 import {
+  bulkDeleteTransactionsSchema,
   createTransactionSchema,
   getTransactionsQuerySchema,
   updateTransactionSchema,
@@ -22,6 +24,12 @@ router
   .route("/")
   .post(validate(createTransactionSchema), createTransactionController)
   .get(validate(getTransactionsQuerySchema, "query"), getTransactionsController);
+
+router.delete(
+  "/bulk",
+  validate(bulkDeleteTransactionsSchema),
+  bulkDeleteTransactionsController
+);
 
 router
   .route("/:id")

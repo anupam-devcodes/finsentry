@@ -197,3 +197,9 @@ export const updateTransactionSchema = z
     .optional()
     .default("desc"),
 });
+
+export const bulkDeleteTransactionsSchema = z.object({
+  transactionIds: z
+    .array(z.string().min(1, "Transaction id cannot be empty"))
+    .min(1, "At least one transaction id is required"),
+});

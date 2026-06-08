@@ -1,4 +1,5 @@
 import {
+  bulkDeleteTransactions,
   createTransaction,
   deleteTransaction,
   getTransactionById,
@@ -67,6 +68,19 @@ export const deleteTransactionController = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: "Transaction deleted successfully.",
+    data: result,
+  });
+});
+
+export const bulkDeleteTransactionsController = asyncHandler(async (req, res) => {
+  const result = await bulkDeleteTransactions(
+    req.user._id,
+    req.body.transactionIds
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Transactions deleted successfully.",
     data: result,
   });
 });

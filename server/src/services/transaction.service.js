@@ -223,3 +223,25 @@ export const deleteTransaction = async (userId, transactionId) => {
     id: transaction._id,
   };
 };
+
+export const bulkDeleteTransactions = async (userId, transactionIds) => {
+  const invalidIds = transactionIds.filter(
+    (id) => !mongoose.Types.ObjectId.isValid(id)
+  );
+
+  if (invalidIds.length > 0) {
+    throw new AppError("One or more transaction ids are invalid.", 400);
+  }
+
+  const result = await Transaction.deleteMany({
+    _id: {
+      $in: transactionIds,
+    },
+    user: userId,
+  });
+
+  return {
+    requestedCount: transactionIds.length,
+    deletedCount: result.deletedCount,
+  };
+};
