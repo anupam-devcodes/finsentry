@@ -1,3 +1,4 @@
+import { scanReceiptImage } from "../services/ai-receipt.service.js";
 import {
   bulkDeleteTransactions,
   createTransaction,
@@ -121,3 +122,15 @@ export const uploadTransactionReceiptController = asyncHandler(
     });
   }
 );
+
+export const scanReceiptController = asyncHandler(async (req, res) => {
+  const extractedTransaction = await scanReceiptImage(req.file);
+
+  res.status(200).json({
+    success: true,
+    message: "Receipt scanned successfully.",
+    data: {
+      extractedTransaction,
+    },
+  });
+});

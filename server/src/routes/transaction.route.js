@@ -6,6 +6,7 @@ import {
   getTransactionByIdController,
   getTransactionsController,
   importTransactionsController,
+  scanReceiptController,
   updateTransactionController,
   uploadTransactionReceiptController,
 } from "../controllers/transaction.controller.js";
@@ -29,6 +30,12 @@ router
   .get(validate(getTransactionsQuerySchema, "query"), getTransactionsController);
 
 router.post("/import", uploadCsvFile, importTransactionsController);
+
+router.post(
+  "/scan-receipt",
+  uploadReceiptImage,
+  scanReceiptController
+);
 
 router.delete(
   "/bulk",
