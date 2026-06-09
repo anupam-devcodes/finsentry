@@ -6,8 +6,10 @@ import {
   getUserTransactions,
   importTransactionsFromCsv,
   updateTransaction,
+  attachReceiptToTransaction,
 } from "../services/transaction.service.js";
 import asyncHandler from "../utils/async-handler.js";
+import { uploadImageToCloudinary } from "../services/upload.service.js";
 
 export const createTransactionController = asyncHandler(async (req, res) => {
   const transaction = await createTransaction(req.user._id, req.body);
@@ -95,3 +97,27 @@ export const importTransactionsController = asyncHandler(async (req, res) => {
     data: result,
   });
 });
+
+export const uploadTransactionReceiptController = asyncHandler(
+  async (req, res) => {
+    const uploadedImage = await uploadImageToCloudinary(
+      req.file,
+      "finsentry/receipts"
+    );
+
+    const transaction = await attachReceiptToTransaction(
+      req.user._id,
+      req.params.id,
+      uploadedImage.url
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Receipt uploaded successfully.",
+      data: {
+        receipt: uploadedImage,
+        transaction,
+      },
+    });
+  }
+);

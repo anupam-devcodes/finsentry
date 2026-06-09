@@ -317,3 +317,17 @@ export const importTransactionsFromCsv = async (userId, file) => {
     transactions: importedTransactions.map(formatTransaction),
   };
 };
+
+export const attachReceiptToTransaction = async (
+  userId,
+  transactionId,
+  receiptUrl
+) => {
+  const transaction = await findUserTransactionById(userId, transactionId);
+
+  transaction.receiptUrl = receiptUrl;
+
+  const updatedTransaction = await transaction.save();
+
+  return formatTransaction(updatedTransaction);
+};

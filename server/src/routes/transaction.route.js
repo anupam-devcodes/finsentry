@@ -7,6 +7,7 @@ import {
   getTransactionsController,
   importTransactionsController,
   updateTransactionController,
+  uploadTransactionReceiptController,
 } from "../controllers/transaction.controller.js";
 import authenticate from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.middleware.js";
@@ -16,7 +17,7 @@ import {
   getTransactionsQuerySchema,
   updateTransactionSchema,
 } from "../validators/transaction.validator.js";
-import { uploadCsvFile } from "../middleware/upload.middleware.js";
+import { uploadCsvFile, uploadReceiptImage } from "../middleware/upload.middleware.js";
 
 const router = Router();
 
@@ -35,6 +36,11 @@ router.delete(
   bulkDeleteTransactionsController
 );
 
+router.post(
+  "/:id/receipt",
+  uploadReceiptImage,
+  uploadTransactionReceiptController
+);
 
 router
   .route("/:id")
