@@ -67,7 +67,10 @@ export const scanReceiptImage = async (file) => {
 
   const base64Image = file.buffer.toString("base64");
 
-  const response = await ai.models.generateContent({
+  let response;
+
+try {
+  response = await ai.models.generateContent({
     model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
     contents: [
       {
@@ -84,6 +87,16 @@ export const scanReceiptImage = async (file) => {
       responseMimeType: "application/json",
     },
   });
+} catch (error) {
+  if (error?.status === 429 || error?.message?.includes("quota")) {
+    throw new AppError(
+      "Gemini API quota exceeded. Please check your Gemini API key, billing, or rate limits.",
+      429
+    );
+  }
+
+  throw new AppError("Failed to scan receipt using Gemini AI.", 502);
+}
 
   const aiText = response.text;
 
