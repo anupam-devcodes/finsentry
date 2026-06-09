@@ -9,6 +9,7 @@ import {
   scanReceiptController,
   updateTransactionController,
   uploadTransactionReceiptController,
+  bulkCreateTransactionsController,
 } from "../controllers/transaction.controller.js";
 import authenticate from "../middleware/auth.middleware.js";
 import validate from "../middleware/validate.middleware.js";
@@ -17,6 +18,7 @@ import {
   createTransactionSchema,
   getTransactionsQuerySchema,
   updateTransactionSchema,
+  bulkCreateTransactionsSchema,
 } from "../validators/transaction.validator.js";
 import { uploadCsvFile, uploadReceiptImage } from "../middleware/upload.middleware.js";
 
@@ -35,6 +37,12 @@ router.post(
   "/scan-receipt",
   uploadReceiptImage,
   scanReceiptController
+);
+
+router.post(
+  "/bulk-create",
+  validate(bulkCreateTransactionsSchema),
+  bulkCreateTransactionsController
 );
 
 router.delete(

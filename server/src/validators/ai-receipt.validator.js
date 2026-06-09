@@ -17,7 +17,15 @@ const normalizeLowerCaseText = (value) => {
   return value.trim().toLowerCase();
 };
 
-export const aiReceiptExtractionSchema = z.object({
+const emptyStringIfMissing = (value) => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return value;
+};
+
+const aiReceiptTransactionSchema = z.object({
   type: z
     .preprocess(normalizeLowerCaseText, z.enum(["expense"]))
     .optional()
@@ -38,9 +46,10 @@ export const aiReceiptExtractionSchema = z.object({
     .default("Other"),
 
   description: z
-    .string()
-    .trim()
-    .max(200, "AI extracted description cannot exceed 200 characters")
+    .preprocess(
+      emptyStringIfMissing,
+      z.string().trim().max(200, "AI extracted description cannot exceed 200 characters")
+    )
     .default("Receipt expense"),
 
   date: z.coerce.date({
@@ -57,7 +66,22 @@ export const aiReceiptExtractionSchema = z.object({
     .optional()
     .default("other"),
 
-  merchant: z.string().trim().max(100).optional().default(""),
+  merchant: z
+    .preprocess(emptyStringIfMissing, z.string().trim().max(100))
+    .optional()
+    .default(""),
 
   confidence: z.coerce.number().min(0).max(1).optional().default(0.7),
+});
+
+export const aiReceiptExtractionSchema = z.object({
+  transactions: z
+    .array(aiReceiptTransactionSchema)
+    .min(1, "At least one transaction must be extracted")
+    .max(10, "Too many transactions extracted from one receipt"),
+
+  receiptSummary: z
+    .preprocess(emptyStringIfMissing, z.string().trim().max(300))
+    .optional()
+    .default(""),
 });

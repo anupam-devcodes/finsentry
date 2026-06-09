@@ -14,23 +14,33 @@ Do not add explanation.
 
 Required JSON shape:
 {
-  "type": "expense",
-  "amount": number,
-  "category": "Food | Travel | Shopping | Bills | Rent | Entertainment | Healthcare | Education | Other",
-  "description": "short useful description",
-  "date": "YYYY-MM-DD",
-  "paymentMethod": "cash | card | upi | bank_transfer | wallet | other",
-  "merchant": "merchant or shop name if visible",
-  "confidence": number between 0 and 1
+  "transactions": [
+    {
+      "type": "expense",
+      "amount": number,
+      "category": "Food | Grocery | Clothing | Travel | Shopping | Bills | Rent | Entertainment | Healthcare | Education | Other",
+      "description": "short useful description",
+      "date": "YYYY-MM-DD",
+      "paymentMethod": "cash | card | upi | bank_transfer | wallet | other",
+      "merchant": "merchant or shop name if visible",
+      "confidence": number between 0 and 1
+    }
+  ],
+  "receiptSummary": "short summary of what was extracted"
 }
 
 Rules:
 - type must always be "expense".
-- amount must be the final payable amount.
+- If the receipt contains only one clear spending category, return one transaction.
+- If the receipt contains items from multiple categories, group items by category and return one transaction per category.
+- Do not create one transaction for every tiny item unless each item is clearly a separate category.
+- Use the final payable amount if the receipt belongs to one category.
+- For multi-category receipts, split the amount category-wise as accurately as possible.
+- The sum of extracted transactions should approximately match the receipt total.
+- If category separation is unclear, return one transaction with category "Other".
 - If date is unclear, use today's date.
-- If category is unclear, use "Other".
 - If payment method is unclear, use "other".
-- Keep description short.
+- Keep descriptions short.
 `;
 
 const getTodayDateString = () => {
@@ -56,6 +66,24 @@ const extractJsonFromAiText = (text) => {
   }
 };
 
+const normalizeAiResponseShape = (parsedAiData) => {
+  if (Array.isArray(parsedAiData)) {
+    return {
+      transactions: parsedAiData,
+      receiptSummary: "",
+    };
+  }
+
+  if (parsedAiData?.transactions) {
+    return parsedAiData;
+  }
+
+  return {
+    transactions: [parsedAiData],
+    receiptSummary: "",
+  };
+};
+
 const formatDateOnly = (date) => {
   return date.toISOString().split("T")[0];
 };
@@ -69,34 +97,34 @@ export const scanReceiptImage = async (file) => {
 
   let response;
 
-try {
-  response = await ai.models.generateContent({
-    model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-    contents: [
-      {
-        inlineData: {
-          mimeType: file.mimetype,
-          data: base64Image,
+  try {
+    response = await ai.models.generateContent({
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      contents: [
+        {
+          inlineData: {
+            mimeType: file.mimetype,
+            data: base64Image,
+          },
         },
+        {
+          text: `${RECEIPT_SCAN_PROMPT}\nToday's date is ${getTodayDateString()}.`,
+        },
+      ],
+      config: {
+        responseMimeType: "application/json",
       },
-      {
-        text: `${RECEIPT_SCAN_PROMPT}\nToday's date is ${getTodayDateString()}.`,
-      },
-    ],
-    config: {
-      responseMimeType: "application/json",
-    },
-  });
-} catch (error) {
-  if (error?.status === 429 || error?.message?.includes("quota")) {
-    throw new AppError(
-      "Gemini API quota exceeded. Please check your Gemini API key, billing, or rate limits.",
-      429
-    );
-  }
+    });
+  } catch (error) {
+    if (error?.status === 429 || error?.message?.includes("quota")) {
+      throw new AppError(
+        "Gemini API quota exceeded. Please check your Gemini API key, billing, or rate limits.",
+        429
+      );
+    }
 
-  throw new AppError("Failed to scan receipt using Gemini AI.", 502);
-}
+    throw new AppError("Failed to scan receipt using Gemini AI.", 502);
+  }
 
   const aiText = response.text;
 
@@ -105,8 +133,9 @@ try {
   }
 
   const parsedAiData = extractJsonFromAiText(aiText);
+  const normalizedAiData = normalizeAiResponseShape(parsedAiData);
 
-  const validationResult = aiReceiptExtractionSchema.safeParse(parsedAiData);
+  const validationResult = aiReceiptExtractionSchema.safeParse(normalizedAiData);
 
   if (!validationResult.success) {
     const error = new AppError("AI extracted receipt data is invalid.", 422);
@@ -122,13 +151,16 @@ try {
   const extractedData = validationResult.data;
 
   return {
-    type: "expense",
-    amount: extractedData.amount,
-    category: extractedData.category,
-    description: extractedData.description,
-    date: formatDateOnly(extractedData.date),
-    paymentMethod: extractedData.paymentMethod,
-    merchant: extractedData.merchant,
-    confidence: extractedData.confidence,
+    receiptSummary: extractedData.receiptSummary,
+    transactions: extractedData.transactions.map((transaction) => ({
+      type: "expense",
+      amount: transaction.amount,
+      category: transaction.category,
+      description: transaction.description,
+      date: formatDateOnly(transaction.date),
+      paymentMethod: transaction.paymentMethod,
+      merchant: transaction.merchant,
+      confidence: transaction.confidence,
+    })),
   };
 };

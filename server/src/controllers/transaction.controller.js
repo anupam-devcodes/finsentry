@@ -8,6 +8,7 @@ import {
   importTransactionsFromCsv,
   updateTransaction,
   attachReceiptToTransaction,
+  bulkCreateTransactions,
 } from "../services/transaction.service.js";
 import asyncHandler from "../utils/async-handler.js";
 import { uploadImageToCloudinary } from "../services/upload.service.js";
@@ -124,13 +125,24 @@ export const uploadTransactionReceiptController = asyncHandler(
 );
 
 export const scanReceiptController = asyncHandler(async (req, res) => {
-  const extractedTransaction = await scanReceiptImage(req.file);
+  const scanResult = await scanReceiptImage(req.file);
 
   res.status(200).json({
     success: true,
     message: "Receipt scanned successfully.",
     data: {
-      extractedTransaction,
+      receiptSummary: scanResult.receiptSummary,
+      extractedTransactions: scanResult.transactions,
     },
+  });
+});
+
+export const bulkCreateTransactionsController = asyncHandler(async (req, res) => {
+  const result = await bulkCreateTransactions(req.user._id, req.body.transactions);
+
+  res.status(201).json({
+    success: true,
+    message: "Transactions created successfully.",
+    data: result,
   });
 });

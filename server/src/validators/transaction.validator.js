@@ -203,3 +203,10 @@ export const bulkDeleteTransactionsSchema = z.object({
     .array(z.string().min(1, "Transaction id cannot be empty"))
     .min(1, "At least one transaction id is required"),
 });
+
+export const bulkCreateTransactionsSchema = z.object({
+  transactions: z
+    .array(createTransactionSchema)
+    .min(1, "At least one transaction is required")
+    .max(50, "Cannot create more than 50 transactions at once"),
+});

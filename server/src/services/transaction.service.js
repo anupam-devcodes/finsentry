@@ -331,3 +331,23 @@ export const attachReceiptToTransaction = async (
 
   return formatTransaction(updatedTransaction);
 };
+
+export const bulkCreateTransactions = async (userId, transactions) => {
+  const transactionsToInsert = transactions.map((transaction) => ({
+    user: userId,
+    type: transaction.type,
+    amountInPaise: convertRupeesToPaise(transaction.amount),
+    category: transaction.category,
+    description: transaction.description,
+    date: transaction.date || new Date(),
+    paymentMethod: transaction.paymentMethod,
+  }));
+
+  const createdTransactions = await Transaction.insertMany(transactionsToInsert);
+
+  return {
+    requestedCount: transactions.length,
+    createdCount: createdTransactions.length,
+    transactions: createdTransactions.map(formatTransaction),
+  };
+};
