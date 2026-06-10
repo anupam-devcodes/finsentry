@@ -1,126 +1,206 @@
-# FinSentry AI — MERN AI Finance SaaS Platform
+# FinSentry AI — AI-Powered Personal Finance SaaS
 
-FinSentry AI is an AI-powered personal finance SaaS platform built with the MERN stack. The project helps users track income, expenses, recurring payments, receipt-based transactions, CSV imports, and financial analytics from a clean dashboard.
+FinSentry AI is a MERN-based personal finance SaaS platform that helps users track income, expenses, receipts, recurring payments, CSV imports, and AI-generated monthly financial reports.
 
-This project is being built as a placement-ready major project with a strong backend architecture, real-world finance workflows, AI-powered receipt scanning, background automation, and scalable API design.
+The project is designed as a placement-ready full-stack SaaS product with a strong backend architecture, AI integration, background automation, file uploads, financial analytics, and production-minded API design.
 
 ---
 
-## Project Status
+## Why This Project Stands Out
 
-Backend development is currently in an advanced stage.
+Most finance apps only allow manual transaction entry. FinSentry AI reduces manual effort by combining:
+
+* AI receipt scanning
+* Multi-category receipt extraction
+* CSV transaction import
+* Recurring transaction automation
+* AI-generated monthly reports
+* Email delivery automation
+* Real dashboard analytics
+
+This makes the project more than a CRUD application. It demonstrates real backend engineering, data processing, automation, AI integration, and SaaS-style thinking.
+
+---
+
+## Current Project Status
+
+The backend is in an advanced MVP stage and contains most major product features.
 
 ### Completed Backend Modules
 
-* User authentication with JWT
+* JWT-based authentication
 * User registration and login
-* Protected routes using authentication middleware
-* Global error handling system
-* Custom AppError utility
-* Async error handling wrapper
-* Zod-based request validation
+* Protected routes
 * Transaction CRUD APIs
 * Transaction filters, search, sorting, and pagination
-* Dashboard analytics API
-* Monthly transaction trend API
-* Bulk transaction delete API
-* Bulk transaction create API
+* Bulk transaction creation
+* Bulk transaction deletion
 * CSV transaction import
-* Cloudinary receipt image upload
+* Cloudinary receipt upload
 * Gemini AI receipt scanning
-* Multi-category receipt extraction
-* Recurring transactions with cron jobs
+* Multi-category receipt extraction from receipts
+* Dashboard analytics
+* Monthly income and expense trends
+* Recurring transaction automation using cron jobs
+* Monthly AI financial reports
+* Email report delivery using Resend
+* Monthly report cron automation
+* Global error handling
+* Zod request validation
+* Clean service-controller-route architecture
+
+### Current Development Stage
+
+* Backend: advanced MVP stage
+* Frontend: planned/upcoming
+* Deployment: upcoming
+* Final polish and API documentation: in progress
 
 ---
 
-## Core Idea
+## Core Features
 
-Most personal finance apps require users to manually enter every transaction. FinSentry AI reduces manual effort by allowing users to upload receipts, import CSV files, and automate recurring payments.
+### 1. Authentication
 
-The system can scan a receipt using Gemini AI and extract transaction details. If a receipt contains multiple spending categories, such as food, grocery, and clothing, the backend returns multiple category-wise transaction drafts so that analytics remain accurate.
+Users can securely register, log in, and access protected routes using JWT authentication.
 
----
+Key capabilities:
 
-## Key Features
-
-### Authentication
-
-* User registration
-* User login
 * Password hashing
 * JWT token generation
 * Protected user routes
+* Auth middleware for secure APIs
 
-### Transaction Management
+---
 
-* Create income and expense transactions
-* View all user transactions
-* View a single transaction
-* Update transactions
-* Delete transactions
+### 2. Transaction Management
+
+Users can manage income and expense transactions.
+
+Supported operations:
+
+* Create transaction
+* View all transactions
+* View single transaction
+* Update transaction
+* Delete transaction
 * Bulk delete transactions
 * Bulk create transactions
-* Store amount in paise for precision
 
-### Advanced Transaction Querying
+Money is stored internally in paise to avoid floating-point precision issues.
 
-Users can filter and organize transactions using:
+Example:
 
-* Type
-* Category
-* Payment method
-* Search keyword
-* Start date
-* End date
+```text
+₹100.50 → 10050 paise
+```
+
+---
+
+### 3. Advanced Filtering and Pagination
+
+Transaction APIs support:
+
+* Filter by transaction type
+* Filter by category
+* Filter by payment method
+* Search by title, description, or category
+* Date range filtering
 * Pagination
 * Sorting by date, amount, category, or creation time
 
-### Analytics Dashboard
+This makes the backend ready for a real dashboard experience.
 
-The backend provides analytics for:
+---
+
+### 4. Dashboard Analytics
+
+The analytics module calculates:
 
 * Total income
 * Total expense
-* Balance
+* Current balance
 * Expense by category
 * Recent transactions
 * Monthly income and expense trends
 
-### CSV Import
+This data will power the frontend dashboard.
 
-Users can upload CSV files containing multiple transactions. The backend parses the CSV, validates each row using Zod, and inserts all valid transactions into MongoDB.
+---
 
-### Receipt Upload
+### 5. CSV Transaction Import
 
-Users can upload receipt images. The backend stores receipt images on Cloudinary and attaches the receipt URL to the transaction.
+Users can upload a CSV file containing multiple transactions.
 
-### AI Receipt Scanning
+Backend flow:
 
-FinSentry AI integrates Gemini AI to scan receipt images and extract transaction details.
+```text
+CSV file upload
+        ↓
+Multer reads file
+        ↓
+CSV buffer converted to text
+        ↓
+csv-parse converts rows to objects
+        ↓
+Zod validates each row
+        ↓
+Valid transactions are inserted into MongoDB
+```
 
-The AI receipt scanning flow:
+This is useful for importing bank statements or bulk financial records.
+
+---
+
+### 6. Cloudinary Receipt Upload
+
+Users can upload receipt images and attach them to transactions.
+
+Backend flow:
+
+```text
+Receipt image upload
+        ↓
+Multer reads image
+        ↓
+Image buffer converted to base64/data URI
+        ↓
+Cloudinary stores image
+        ↓
+Receipt URL is saved in transaction
+```
+
+---
+
+### 7. Gemini AI Receipt Scanning
+
+FinSentry AI integrates Gemini to scan receipt images and extract transaction details.
+
+Flow:
 
 ```text
 Receipt image upload
         ↓
 Image buffer converted to base64
         ↓
-Gemini AI analyzes receipt
+Gemini analyzes receipt
         ↓
-AI returns JSON response
+AI returns structured JSON
         ↓
 Backend parses JSON
         ↓
-Zod validates extracted data
+Zod validates AI output
         ↓
 Frontend receives editable transaction drafts
 ```
 
-### Multi-Category Receipt Extraction
+---
 
-A practical receipt may contain multiple categories.
+### 8. Multi-Category Receipt Extraction
 
-Example:
+A practical receipt can contain multiple spending categories.
+
+Example mall receipt:
 
 ```text
 Food: ₹500
@@ -129,7 +209,7 @@ Clothing: ₹2000
 Total: ₹3700
 ```
 
-Instead of saving this as one incorrect transaction, FinSentry AI splits it into multiple category-wise transaction drafts:
+Instead of saving the whole receipt under one incorrect category, FinSentry AI extracts category-wise transaction drafts:
 
 ```text
 Food       ₹500
@@ -137,9 +217,27 @@ Grocery    ₹1200
 Clothing   ₹2000
 ```
 
-This keeps the analytics dashboard accurate.
+This keeps analytics accurate.
 
-### Recurring Transactions
+Final flow:
+
+```text
+Receipt uploaded
+        ↓
+Gemini detects one or more categories
+        ↓
+Backend returns extractedTransactions array
+        ↓
+User reviews editable rows
+        ↓
+Bulk create API saves selected transactions
+        ↓
+Analytics remain category-wise accurate
+```
+
+---
+
+### 9. Recurring Transactions
 
 Users can create recurring transactions such as:
 
@@ -149,20 +247,167 @@ Users can create recurring transactions such as:
 * EMI payments
 * Weekly expenses
 
-The backend uses a cron job to automatically check due recurring transactions and create normal transaction copies.
+Backend flow:
+
+```text
+User creates recurring transaction
+        ↓
+Backend calculates nextRecurringDate
+        ↓
+Cron job runs daily
+        ↓
+Due recurring templates are found
+        ↓
+Normal transaction copies are created
+        ↓
+Original template's nextRecurringDate is updated
+```
+
+Generated copies are linked to the original recurring template using `recurringParent`.
+
+---
+
+### 10. Monthly AI Financial Reports
+
+The backend can generate monthly reports using transaction data and Gemini AI.
+
+Report includes:
+
+* Monthly income
+* Monthly expenses
+* Balance/savings
+* Transaction count
+* Top expense categories
+* AI-generated summary
+* AI-generated financial insights
+
+Flow:
+
+```text
+Monthly transactions
+        ↓
+Backend calculates financial summary
+        ↓
+Gemini generates readable report
+        ↓
+Report is saved in MongoDB
+        ↓
+Report can be viewed or emailed
+```
+
+---
+
+### 11. Email Report Delivery with Resend
+
+Users can receive monthly AI financial reports by email.
+
+Flow:
+
+```text
+Generate monthly report
+        ↓
+Build HTML + plain text email
+        ↓
+Send email using Resend
+        ↓
+Update report status as email_sent
+```
+
+The email contains:
+
+* Income
+* Expenses
+* Savings
+* Top spending categories
+* AI summary
+* AI insights
+
+---
+
+### 12. Monthly Report Cron Automation
+
+A scheduled cron job can automatically send monthly reports.
 
 Example:
 
 ```text
-Original transaction:
-Rent ₹10000 monthly
-
-Cron job runs daily:
-If nextRecurringDate is due, create a new rent transaction
-Then update the nextRecurringDate
+1 July 2026 at 8:00 AM
+        ↓
+Send June 2026 report
 ```
 
-Generated recurring copies are linked to the original recurring template using `recurringParent`.
+Cron flow:
+
+```text
+Monthly cron starts
+        ↓
+Find all users
+        ↓
+Generate previous month's report
+        ↓
+Send report email
+        ↓
+Mark report as sent
+```
+
+Duplicate email prevention is included so the same report is not repeatedly emailed.
+
+---
+
+## Backend Architecture
+
+FinSentry AI follows a clean layered backend architecture.
+
+```text
+Client Request
+        ↓
+Express App
+        ↓
+Route
+        ↓
+Middleware
+        ↓
+Controller
+        ↓
+Service
+        ↓
+Model
+        ↓
+MongoDB / External API
+        ↓
+Response
+```
+
+### Folder Responsibilities
+
+```text
+src/config
+Database, Cloudinary, Gemini, and Resend configuration
+
+src/controllers
+Handles request and response logic
+
+src/routes
+Defines API endpoints
+
+src/services
+Contains business logic
+
+src/models
+Defines MongoDB schemas and models
+
+src/middleware
+Authentication, validation, upload, and error middleware
+
+src/validators
+Zod schemas for request validation
+
+src/cron
+Scheduled background jobs
+
+src/utils
+Reusable helper utilities
+```
 
 ---
 
@@ -181,148 +426,26 @@ Generated recurring copies are linked to the original recurring template using `
 * csv-parse
 * Cloudinary
 * Gemini AI
+* Resend
 * node-cron
 
 ### Frontend
 
-Frontend development is upcoming.
+Frontend development is planned.
 
-Planned frontend stack:
+Planned stack:
 
 * React.js
 * Tailwind CSS
 * React Router
 * Axios
-* Charting library for analytics dashboard
-
----
-
-## Backend Architecture
-
-```text
-Client Request
-        ↓
-Express App
-        ↓
-Routes
-        ↓
-Middlewares
-        ↓
-Controllers
-        ↓
-Services
-        ↓
-Models
-        ↓
-MongoDB / External APIs
-        ↓
-Response
-```
-
-### Folder Responsibilities
-
-```text
-src/config
-Database, Cloudinary, and Gemini configuration
-
-src/controllers
-Request and response handling
-
-src/routes
-API endpoint definitions
-
-src/services
-Business logic
-
-src/models
-MongoDB schemas and models
-
-src/middleware
-Authentication, validation, upload, and error middleware
-
-src/validators
-Zod schemas for request validation
-
-src/cron
-Background scheduled jobs
-
-src/utils
-Reusable helper utilities
-```
-
----
-
-## Important Backend Flows
-
-### Authentication Flow
-
-```text
-User registers or logs in
-        ↓
-Password is hashed or verified
-        ↓
-JWT token is generated
-        ↓
-Frontend stores token
-        ↓
-Protected APIs use Bearer token
-        ↓
-Auth middleware verifies user
-```
-
-### Transaction Creation Flow
-
-```text
-User sends transaction data
-        ↓
-Zod validates request body
-        ↓
-Service converts amount to paise
-        ↓
-Transaction is saved in MongoDB
-        ↓
-Formatted transaction is returned
-```
-
-### AI Receipt Scan + Bulk Save Flow
-
-```text
-User uploads receipt
-        ↓
-/scan-receipt API analyzes receipt using Gemini
-        ↓
-Backend returns extractedTransactions array
-        ↓
-Frontend shows editable rows
-        ↓
-User reviews and clicks Save All
-        ↓
-/bulk-create API saves all selected transactions
-        ↓
-Analytics dashboard remains category-wise accurate
-```
-
-### Recurring Transaction Flow
-
-```text
-User creates recurring transaction
-        ↓
-Backend calculates nextRecurringDate
-        ↓
-Cron job runs daily
-        ↓
-Due recurring transactions are found
-        ↓
-Normal transaction copies are created
-        ↓
-nextRecurringDate is updated
-```
+* Charting library for analytics
 
 ---
 
 ## API Overview
 
-### Auth APIs
+### Authentication APIs
 
 ```http
 POST /api/auth/register
@@ -372,6 +495,165 @@ GET /api/analytics/dashboard
 GET /api/analytics/monthly-trend
 ```
 
+### Monthly Report APIs
+
+```http
+POST /api/reports/monthly/generate
+POST /api/reports/monthly/send
+```
+
+---
+
+## Important Backend Flows
+
+### Auth Flow
+
+```text
+User registers/logs in
+        ↓
+Password is hashed or verified
+        ↓
+JWT token is generated
+        ↓
+Frontend sends token in Authorization header
+        ↓
+Auth middleware verifies user
+        ↓
+Protected APIs are accessed
+```
+
+### Transaction Creation Flow
+
+```text
+User submits transaction
+        ↓
+Zod validates request body
+        ↓
+Service converts rupees to paise
+        ↓
+MongoDB stores transaction
+        ↓
+Formatted response is returned
+```
+
+### AI Receipt Scan Flow
+
+```text
+User uploads receipt
+        ↓
+Multer reads image file
+        ↓
+Backend converts image buffer to base64
+        ↓
+Gemini analyzes receipt
+        ↓
+Backend validates AI JSON response
+        ↓
+Frontend receives extracted transaction drafts
+```
+
+### Multi-Transaction Receipt Save Flow
+
+```text
+AI returns extractedTransactions array
+        ↓
+Frontend displays editable rows
+        ↓
+User reviews/edits
+        ↓
+Frontend calls bulk-create API
+        ↓
+Backend validates every transaction
+        ↓
+insertMany saves all selected transactions
+```
+
+### Recurring Transaction Flow
+
+```text
+User creates recurring template
+        ↓
+Backend calculates nextRecurringDate
+        ↓
+Cron job runs daily
+        ↓
+Due templates are found
+        ↓
+Normal transaction copies are created
+        ↓
+nextRecurringDate is updated
+```
+
+### Monthly AI Report Flow
+
+```text
+Monthly transactions
+        ↓
+Backend calculates totals and category breakdown
+        ↓
+Gemini generates summary and insights
+        ↓
+Report is saved in MongoDB
+        ↓
+Report can be emailed to the user
+```
+
+---
+
+## Database Models
+
+### User
+
+Stores user account details.
+
+Main fields:
+
+* name
+* email
+* password
+* timestamps
+
+### Transaction
+
+Stores income and expense records.
+
+Main fields:
+
+* user
+* type
+* amountInPaise
+* category
+* description
+* date
+* paymentMethod
+* receiptUrl
+* isRecurring
+* recurringInterval
+* nextRecurringDate
+* recurringParent
+
+### MonthlyReport
+
+Stores generated monthly AI reports.
+
+Main fields:
+
+* user
+* month
+* year
+* periodStart
+* periodEnd
+* totalIncomeInPaise
+* totalExpenseInPaise
+* balanceInPaise
+* transactionCount
+* topExpenseCategories
+* aiSummary
+* aiInsights
+* emailSent
+* emailSentAt
+* status
+
 ---
 
 ## Environment Variables
@@ -389,15 +671,44 @@ CLOUDINARY_API_SECRET=my_cloudinary_api_secret
 
 GEMINI_API_KEY=my_gemini_api_key
 GEMINI_MODEL=gemini-2.5-flash
+
+RESEND_API_KEY=my_resend_api_key
+RESEND_FROM_EMAIL=FinSentry AI <onboarding@resend.dev>
 ```
+
+Used `.env.example` for safe placeholders.
 
 ---
 
-## Running the Backend Locally
+## Local Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/anupam-devcodes/finsentry.git
+cd finsentry
+```
+
+### 2. Install backend dependencies
 
 ```bash
 cd server
 npm install
+```
+
+### 3. Configure environment variables
+
+Create:
+
+```text
+server/.env
+```
+
+Add the required environment variables listed above.
+
+### 4. Run backend server
+
+```bash
 npm run dev
 ```
 
@@ -406,63 +717,103 @@ Expected output:
 ```text
 MongoDB connected
 [Recurring Cron] Scheduled successfully.
+[Monthly Report Cron] Scheduled successfully.
 FinSentry server is running on http://localhost:5000
 ```
 
 ---
 
-## Current Backend Highlights
+## Sample CSV Format
 
-This backend is not limited to simple CRUD operations. It includes:
+A sample CSV can contain:
 
-* AI-powered receipt understanding
-* Multi-category transaction extraction
-* CSV bulk import
-* Bulk create and delete operations
-* Real analytics with MongoDB aggregation
-* Background cron automation
-* External image upload with Cloudinary
-* Clean error handling and validation structure
+```csv
+type,amount,category,description,date,paymentMethod
+income,50000,Salary,Monthly salary,2026-06-01,bank_transfer
+expense,8500,Food,Food expenses,2026-06-05,upi
+expense,3000,Travel,Travel expenses,2026-06-10,card
+```
 
 ---
 
-## Upcoming Features
+## Security and Production Notes
 
-* Frontend dashboard
-* Monthly AI financial reports
-* Email reports using Resend
-* Smart spending insights
-* Financial health score
-* Deployment
-* API documentation
-* Security and production polish
+The backend already includes:
+
+* JWT protected routes
+* Password hashing
+* Request validation using Zod
+* Centralized error handling
+* File type validation for uploads
+* Environment variable separation
+* API key protection using `.env`
+
+Planned production polish:
+
+* CORS configuration
+* Security headers with Helmet
+* Rate limiting
+* Deployment configuration
+* Final API documentation
+* Frontend integration
 
 ---
 
-## Project Goal
+## What I Learned / Demonstrated
 
-The goal of FinSentry AI is to build a real-world, recruiter-ready MERN SaaS project that demonstrates:
+This project demonstrates:
 
-* Backend architecture
 * REST API design
-* Authentication
+* Authentication and authorization
 * MongoDB data modeling
-* AI integration
-* Background jobs
-* File uploads
-* CSV processing
+* Mongoose schema design
+* Error handling architecture
+* Request validation with Zod
+* File uploads with Multer
+* CSV parsing and validation
+* Cloudinary integration
+* Gemini AI integration
+* AI JSON validation
+* Background jobs with cron
+* Email automation with Resend
+* Analytics using MongoDB aggregation
+* Clean controller-service-model architecture
+* Production-minded backend development
+
+---
+
+## Roadmap
+
+### Completed
+
+* Backend setup
+* Authentication
+* Transactions
 * Analytics
-* Clean error handling
-* Production-ready thinking
+* CSV import
+* Receipt upload
+* AI receipt scanning
+* Multi-category receipt extraction
+* Recurring transactions
+* Monthly AI reports
+* Email automation
+
+### In Progress / Upcoming
+
+* Security middleware
+* Production CORS setup
+* API documentation
+* Backend deployment
+* React frontend
+* Dashboard UI
+* Charts and analytics UI
+* Frontend authentication flow
+* Full-stack deployment
 
 ---
 
 ## Author
 
-Built by **Anupam Choubey** as a full-stack project with a focus on practical engineering, learning, and real-world financial problem solving.
+Built by **Anupam Choubey** as a MERN AI SaaS project.
 
----
-
-## Note
-
-This repository documents the complete development journey of FinSentry AI. The project is being built incrementally with tested backend modules, clean architecture, and practical feature development.
+GitHub: [anupam-devcodes](https://github.com/anupam-devcodes)
