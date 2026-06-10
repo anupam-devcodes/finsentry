@@ -1,66 +1,102 @@
 import mongoose from "mongoose";
+import { parse } from "csv-parse/sync";
+
 import Transaction from "../models/transaction.model.js";
 import AppError from "../utils/app-error.js";
-import { parse } from "csv-parse/sync";
 import { csvTransactionRowSchema } from "../validators/csv-transaction.validator.js";
+import { calculateNextRecurringDate } from "./recurring-transaction.service.js";
 
 const convertRupeesToPaise = (amount) => {
-  return Math.round(amount * 100);
+  return Math.round(Number(amount) * 100);
 };
 
-const formatTransaction = (transaction) => {
+const convertPaiseToRupees = (amountInPaise) => {
+  return amountInPaise / 100;
+};
+
+const escapeRegExp = (text) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
+export const formatTransaction = (transaction) => {
   return {
     id: transaction._id,
+    user: transaction.user,
+    title: transaction.title,
+    description: transaction.description,
     type: transaction.type,
-    amount: transaction.amountInPaise / 100,
+    amount: convertPaiseToRupees(transaction.amountInPaise),
     amountInPaise: transaction.amountInPaise,
     category: transaction.category,
-    description: transaction.description,
     date: transaction.date,
     paymentMethod: transaction.paymentMethod,
     receiptUrl: transaction.receiptUrl,
+
     isRecurring: transaction.isRecurring,
-    recurringFrequency: transaction.recurringFrequency,
+    recurringInterval: transaction.recurringInterval,
     nextRecurringDate: transaction.nextRecurringDate,
+    recurringParent: transaction.recurringParent,
+
     createdAt: transaction.createdAt,
     updatedAt: transaction.updatedAt,
   };
 };
 
-export const createTransaction = async (userId, transactionData) => {
-  const {
-    type,
-    amount,
-    category,
-    description,
-    date,
-    paymentMethod,
-    isRecurring,
-    recurringFrequency,
-    nextRecurringDate,
-  } = transactionData;
+const buildTransactionTitle = (transactionData) => {
+  return (
+    transactionData.title ||
+    transactionData.description ||
+    `${transactionData.category} transaction`
+  );
+};
 
-  if (isRecurring && !recurringFrequency) {
-    throw new AppError("Recurring frequency is required for recurring transactions.", 400);
+const getRecurringFields = (transactionData) => {
+  if (!transactionData.isRecurring) {
+    return {
+      isRecurring: false,
+      recurringInterval: null,
+      nextRecurringDate: null,
+    };
   }
+
+  const nextRecurringDate = calculateNextRecurringDate(
+    transactionData.date,
+    transactionData.recurringInterval
+  );
+
+  if (!nextRecurringDate) {
+    throw new AppError("Invalid recurring interval.", 400);
+  }
+
+  return {
+    isRecurring: true,
+    recurringInterval: transactionData.recurringInterval,
+    nextRecurringDate,
+  };
+};
+
+export const createTransaction = async (userId, transactionData) => {
+  const recurringFields = getRecurringFields(transactionData);
 
   const transaction = await Transaction.create({
     user: userId,
-    type,
-    amountInPaise: convertRupeesToPaise(amount),
-    category,
-    description,
-    date,
-    paymentMethod,
-    isRecurring,
-    recurringFrequency: isRecurring ? recurringFrequency : null,
-    nextRecurringDate: isRecurring ? nextRecurringDate : null,
+    title: buildTransactionTitle(transactionData),
+    description: transactionData.description,
+    type: transactionData.type,
+    amountInPaise: convertRupeesToPaise(transactionData.amount),
+    category: transactionData.category,
+    date: transactionData.date,
+    paymentMethod: transactionData.paymentMethod,
+
+    ...recurringFields,
+
+    recurringParent: null,
   });
 
   return formatTransaction(transaction);
 };
 
-export const getUserTransactions = async (userId, queryOptions = {}) => {
+export const getUserTransactions = async (userId, filters) => {
   const {
     type,
     category,
@@ -68,86 +104,92 @@ export const getUserTransactions = async (userId, queryOptions = {}) => {
     search,
     startDate,
     endDate,
-    page,
-    limit,
-    sortBy,
-    sortOrder,
-  } = queryOptions;
+    page = 1,
+    limit = 10,
+    sortBy = "date",
+    sortOrder = "desc",
+  } = filters;
 
-  const filter = {
+  const query = {
     user: userId,
   };
 
   if (type) {
-    filter.type = type;
+    query.type = type;
   }
 
   if (category) {
-    filter.category = new RegExp(`^${category}$`, "i");
+    query.category = new RegExp(`^${escapeRegExp(category)}$`, "i");
   }
 
   if (paymentMethod) {
-    filter.paymentMethod = paymentMethod;
+    query.paymentMethod = paymentMethod;
   }
 
   if (startDate || endDate) {
-    filter.date = {};
+    query.date = {};
 
     if (startDate) {
-      filter.date.$gte = startDate;
+      query.date.$gte = startDate;
     }
 
     if (endDate) {
-      filter.date.$lte = endDate;
+      query.date.$lte = endDate;
     }
   }
 
   if (search) {
-    const searchRegex = new RegExp(search, "i");
+    const searchRegex = new RegExp(escapeRegExp(search), "i");
 
-    filter.$or = [
-      { category: searchRegex },
+    query.$or = [
+      { title: searchRegex },
       { description: searchRegex },
+      { category: searchRegex },
     ];
   }
 
-  const skip = (page - 1) * limit;
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+  const skip = (pageNumber - 1) * limitNumber;
 
-  const sortField = sortBy === "amount" ? "amountInPaise" : sortBy;
+  const sortFieldMap = {
+    date: "date",
+    amount: "amountInPaise",
+    category: "category",
+    createdAt: "createdAt",
+  };
+
+  const sortField = sortFieldMap[sortBy] || "date";
   const sortDirection = sortOrder === "asc" ? 1 : -1;
 
-  const [transactions, totalResults] = await Promise.all([
-    Transaction.find(filter)
-      .sort({ [sortField]: sortDirection, createdAt: -1 })
+  const [transactions, totalTransactions] = await Promise.all([
+    Transaction.find(query)
+      .sort({ [sortField]: sortDirection })
       .skip(skip)
-      .limit(limit),
+      .limit(limitNumber),
 
-    Transaction.countDocuments(filter),
+    Transaction.countDocuments(query),
   ]);
 
-  const totalPages = Math.ceil(totalResults / limit);
+  const totalPages = Math.ceil(totalTransactions / limitNumber);
 
   return {
     transactions: transactions.map(formatTransaction),
     pagination: {
-      page,
-      limit,
-      totalResults,
+      totalTransactions,
       totalPages,
-      hasNextPage: page < totalPages,
-      hasPreviousPage: page > 1,
+      currentPage: pageNumber,
+      limit: limitNumber,
+      hasNextPage: pageNumber < totalPages,
+      hasPreviousPage: pageNumber > 1,
     },
   };
 };
 
-const validateTransactionId = (transactionId) => {
+export const findUserTransactionById = async (userId, transactionId) => {
   if (!mongoose.Types.ObjectId.isValid(transactionId)) {
     throw new AppError("Invalid transaction id.", 400);
   }
-};
-
-const findUserTransactionById = async (userId, transactionId) => {
-  validateTransactionId(transactionId);
 
   const transaction = await Transaction.findOne({
     _id: transactionId,
@@ -167,48 +209,85 @@ export const getTransactionById = async (userId, transactionId) => {
   return formatTransaction(transaction);
 };
 
-export const updateTransaction = async (userId, transactionId, updateData) => {
+export const updateTransaction = async (
+  userId,
+  transactionId,
+  transactionData
+) => {
   const transaction = await findUserTransactionById(userId, transactionId);
 
-  if (
-    updateData.isRecurring === true &&
-    !updateData.recurringFrequency &&
-    !transaction.recurringFrequency
-  ) {
-    throw new AppError(
-      "Recurring frequency is required for recurring transactions.",
-      400
-    );
+  if (transactionData.title !== undefined) {
+    transaction.title = transactionData.title || buildTransactionTitle({
+      ...transaction.toObject(),
+      ...transactionData,
+    });
   }
 
-  if (updateData.type !== undefined) transaction.type = updateData.type;
-  if (updateData.amount !== undefined) {
-    transaction.amountInPaise = convertRupeesToPaise(updateData.amount);
-  }
-  if (updateData.category !== undefined) transaction.category = updateData.category;
-  if (updateData.description !== undefined) {
-    transaction.description = updateData.description;
-  }
-  if (updateData.date !== undefined) transaction.date = updateData.date;
-  if (updateData.paymentMethod !== undefined) {
-    transaction.paymentMethod = updateData.paymentMethod;
+  if (transactionData.description !== undefined) {
+    transaction.description = transactionData.description;
   }
 
-  if (updateData.isRecurring !== undefined) {
-    transaction.isRecurring = updateData.isRecurring;
+  if (transactionData.type !== undefined) {
+    transaction.type = transactionData.type;
+  }
 
-    if (updateData.isRecurring === false) {
-      transaction.recurringFrequency = null;
+  if (transactionData.amount !== undefined) {
+    transaction.amountInPaise = convertRupeesToPaise(transactionData.amount);
+  }
+
+  if (transactionData.category !== undefined) {
+    transaction.category = transactionData.category;
+  }
+
+  if (transactionData.date !== undefined) {
+    transaction.date = transactionData.date;
+  }
+
+  if (transactionData.paymentMethod !== undefined) {
+    transaction.paymentMethod = transactionData.paymentMethod;
+  }
+
+  const recurringFieldsTouched =
+    transactionData.isRecurring !== undefined ||
+    transactionData.recurringInterval !== undefined ||
+    transactionData.date !== undefined;
+
+  if (recurringFieldsTouched) {
+    const finalIsRecurring =
+      transactionData.isRecurring !== undefined
+        ? transactionData.isRecurring
+        : transaction.isRecurring;
+
+    if (!finalIsRecurring) {
+      transaction.isRecurring = false;
+      transaction.recurringInterval = null;
       transaction.nextRecurringDate = null;
+    } else {
+      const finalRecurringInterval =
+        transactionData.recurringInterval || transaction.recurringInterval;
+
+      if (!finalRecurringInterval) {
+        throw new AppError(
+          "Recurring interval is required when transaction is recurring.",
+          400
+        );
+      }
+
+      const baseDate = transaction.date;
+
+      const nextRecurringDate = calculateNextRecurringDate(
+        baseDate,
+        finalRecurringInterval
+      );
+
+      if (!nextRecurringDate) {
+        throw new AppError("Invalid recurring interval.", 400);
+      }
+
+      transaction.isRecurring = true;
+      transaction.recurringInterval = finalRecurringInterval;
+      transaction.nextRecurringDate = nextRecurringDate;
     }
-  }
-
-  if (updateData.recurringFrequency !== undefined) {
-    transaction.recurringFrequency = updateData.recurringFrequency;
-  }
-
-  if (updateData.nextRecurringDate !== undefined) {
-    transaction.nextRecurringDate = updateData.nextRecurringDate;
   }
 
   const updatedTransaction = await transaction.save();
@@ -222,7 +301,7 @@ export const deleteTransaction = async (userId, transactionId) => {
   await transaction.deleteOne();
 
   return {
-    id: transaction._id,
+    deletedTransactionId: transactionId,
   };
 };
 
@@ -236,15 +315,42 @@ export const bulkDeleteTransactions = async (userId, transactionIds) => {
   }
 
   const result = await Transaction.deleteMany({
-    _id: {
-      $in: transactionIds,
-    },
+    _id: { $in: transactionIds },
     user: userId,
   });
 
   return {
     requestedCount: transactionIds.length,
     deletedCount: result.deletedCount,
+  };
+};
+
+export const bulkCreateTransactions = async (userId, transactions) => {
+  const transactionsToInsert = transactions.map((transaction) => {
+    const recurringFields = getRecurringFields(transaction);
+
+    return {
+      user: userId,
+      title: buildTransactionTitle(transaction),
+      description: transaction.description,
+      type: transaction.type,
+      amountInPaise: convertRupeesToPaise(transaction.amount),
+      category: transaction.category,
+      date: transaction.date,
+      paymentMethod: transaction.paymentMethod,
+
+      ...recurringFields,
+
+      recurringParent: null,
+    };
+  });
+
+  const createdTransactions = await Transaction.insertMany(transactionsToInsert);
+
+  return {
+    requestedCount: transactions.length,
+    createdCount: createdTransactions.length,
+    transactions: createdTransactions.map(formatTransaction),
   };
 };
 
@@ -259,17 +365,20 @@ export const importTransactionsFromCsv = async (userId, file) => {
 
   try {
     rows = parse(csvText, {
-    columns: true,
-    skip_empty_lines: true,
-    trim: true,
-    bom: true,
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      bom: true,
     });
   } catch (error) {
     throw new AppError("Invalid CSV file format.", 400);
   }
 
   if (!rows.length) {
-    throw new AppError("CSV file does not contain any transaction rows.", 400);
+    throw new AppError(
+      "CSV file does not contain any transaction rows.",
+      400
+    );
   }
 
   const validationErrors = [];
@@ -294,12 +403,21 @@ export const importTransactionsFromCsv = async (userId, file) => {
 
     transactionsToInsert.push({
       user: userId,
+      title:
+        transaction.title ||
+        transaction.description ||
+        `${transaction.category} transaction`,
+      description: transaction.description,
       type: transaction.type,
       amountInPaise: convertRupeesToPaise(transaction.amount),
       category: transaction.category,
-      description: transaction.description,
       date: transaction.date,
       paymentMethod: transaction.paymentMethod,
+
+      isRecurring: false,
+      recurringInterval: null,
+      nextRecurringDate: null,
+      recurringParent: null,
     });
   });
 
@@ -309,7 +427,9 @@ export const importTransactionsFromCsv = async (userId, file) => {
     throw error;
   }
 
-  const importedTransactions = await Transaction.insertMany(transactionsToInsert);
+  const importedTransactions = await Transaction.insertMany(
+    transactionsToInsert
+  );
 
   return {
     totalRows: rows.length,
@@ -330,24 +450,4 @@ export const attachReceiptToTransaction = async (
   const updatedTransaction = await transaction.save();
 
   return formatTransaction(updatedTransaction);
-};
-
-export const bulkCreateTransactions = async (userId, transactions) => {
-  const transactionsToInsert = transactions.map((transaction) => ({
-    user: userId,
-    type: transaction.type,
-    amountInPaise: convertRupeesToPaise(transaction.amount),
-    category: transaction.category,
-    description: transaction.description,
-    date: transaction.date || new Date(),
-    paymentMethod: transaction.paymentMethod,
-  }));
-
-  const createdTransactions = await Transaction.insertMany(transactionsToInsert);
-
-  return {
-    requestedCount: transactions.length,
-    createdCount: createdTransactions.length,
-    transactions: createdTransactions.map(formatTransaction),
-  };
-};
+};  

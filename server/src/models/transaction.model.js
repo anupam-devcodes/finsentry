@@ -1,5 +1,26 @@
 import mongoose from "mongoose";
 
+export const TransactionTypeEnum = {
+  INCOME: "income",
+  EXPENSE: "expense",
+};
+
+export const PaymentMethodEnum = {
+  CASH: "cash",
+  CARD: "card",
+  UPI: "upi",
+  BANK_TRANSFER: "bank_transfer",
+  WALLET: "wallet",
+  OTHER: "other",
+};
+
+export const RecurringIntervalEnum = {
+  DAILY: "daily",
+  WEEKLY: "weekly",
+  MONTHLY: "monthly",
+  YEARLY: "yearly",
+};
+
 const transactionSchema = new mongoose.Schema(
   {
     user: {
@@ -9,9 +30,16 @@ const transactionSchema = new mongoose.Schema(
       index: true,
     },
 
+    title: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Title cannot exceed 100 characters"],
+      default: "",
+    },
+
     type: {
       type: String,
-      enum: ["income", "expense"],
+      enum: Object.values(TransactionTypeEnum),
       required: [true, "Transaction type is required"],
     },
 
@@ -44,8 +72,8 @@ const transactionSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["cash", "card", "upi", "bank_transfer", "wallet", "other"],
-      default: "other",
+      enum: Object.values(PaymentMethodEnum),
+      default: PaymentMethodEnum.OTHER,
     },
 
     receiptUrl: {
@@ -58,14 +86,20 @@ const transactionSchema = new mongoose.Schema(
       default: false,
     },
 
-    recurringFrequency: {
+    recurringInterval: {
       type: String,
-      enum: ["daily", "weekly", "monthly", "yearly", null],
+      enum: [...Object.values(RecurringIntervalEnum), null],
       default: null,
     },
 
     nextRecurringDate: {
       type: Date,
+      default: null,
+    },
+
+    recurringParent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transaction",
       default: null,
     },
   },
