@@ -3,7 +3,7 @@ import { processRecurringTransactions } from "../services/recurring-transaction.
 
 export const startRecurringTransactionCron = () => {
   cron.schedule(
-    "* * * * *",
+    "5 0 * * *",
     async () => {
       try {
         const result = await processRecurringTransactions();
