@@ -1,9 +1,10 @@
-# FinSentry AI — AI-Powered Personal Finance SaaS
+FinSentry AI — AI-Powered Personal Finance Platform
 
-FinSentry AI is a MERN-based personal finance SaaS platform that helps users track income, expenses, receipts, recurring payments, CSV imports, and AI-generated monthly financial reports.
+FinSentry AI is a full-stack MERN application that helps users manage personal finances through intelligent transaction tracking, AI-powered receipt processing, recurring payment automation, and automated monthly financial insights.
 
-The project is designed as a placement-ready full-stack SaaS product with a strong backend architecture, AI integration, background automation, file uploads, financial analytics, and production-minded API design.
+The platform combines modern backend engineering practices with practical AI integrations to reduce manual financial management and provide a smarter user experience.
 
+Built with a production-oriented architecture, FinSentry AI demonstrates secure authentication, scalable REST APIs, file processing pipelines, background job automation, financial analytics, and AI-assisted workflows.
 ---
 
 ## Why This Project Stands Out
