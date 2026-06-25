@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
 import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
@@ -20,13 +21,15 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/transactions" element={<TransactionsPage />} />
-        <Route path="/scan-receipt" element={<ScanReceiptPage />} />
-        <Route path="/import-csv" element={<ImportCsvPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/scan-receipt" element={<ScanReceiptPage />} />
+          <Route path="/import-csv" element={<ImportCsvPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
