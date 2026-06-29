@@ -9,7 +9,19 @@ function extractUser(data) {
 }
 
 function extractToken(data) {
-  return data?.token || data?.accessToken || data?.data?.token || null;
+  return (
+    data?.token ||
+    data?.accessToken ||
+    data?.access_token ||
+    data?.jwt ||
+    data?.data?.token ||
+    data?.data?.accessToken ||
+    data?.data?.access_token ||
+    data?.data?.jwt ||
+    data?.tokens?.accessToken ||
+    data?.data?.tokens?.accessToken ||
+    null
+  );
 }
 
 export function AuthProvider({ children }) {
@@ -19,19 +31,37 @@ export function AuthProvider({ children }) {
   const isAuthenticated = Boolean(user);
 
   async function register(formData) {
-    const data = await registerUser(formData);
+  const registerResponse = await registerUser(formData);
 
-    const token = extractToken(data);
-    const userData = extractUser(data);
+  let token = extractToken(registerResponse);
+  let userData = extractUser(registerResponse);
 
-    if (token) {
-      localStorage.setItem("token", token);
-    }
+  // If register API does not return token, auto-login after successful registration
+  if (!token) {
+    const loginResponse = await loginUser({
+      email: formData.email,
+      password: formData.password,
+    });
 
-    setUser(userData);
-
-    return data;
+    token = extractToken(loginResponse);
+    userData = extractUser(loginResponse);
   }
+
+  if (!token) {
+    localStorage.removeItem("token");
+    setUser(null);
+    throw new Error("Account created, but automatic login failed. Please login manually.");
+  }
+
+  localStorage.setItem("token", token);
+  setUser(userData);
+
+  return {
+    data: registerResponse,
+    token,
+    user: userData,
+  };
+}
 
   async function login(formData) {
     const data = await loginUser(formData);
@@ -39,10 +69,13 @@ export function AuthProvider({ children }) {
     const token = extractToken(data);
     const userData = extractUser(data);
 
-    if (token) {
-      localStorage.setItem("token", token);
+    if (!token) {
+      localStorage.removeItem("token");
+      setUser(null);
+      throw new Error("Login failed. Token was not received from server.");
     }
 
+    localStorage.setItem("token", token);
     setUser(userData);
 
     return data;

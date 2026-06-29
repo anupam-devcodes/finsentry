@@ -26,26 +26,17 @@ function RegisterPage() {
   }
 
   async function handleSubmit(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    try {
-      setIsSubmitting(true);
+  try {
+    await register(formData);
 
-      await register(formData);
-
-      toast.success("Account created successfully");
-      navigate("/dashboard");
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        "Registration failed";
-
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    toast.success("Account created successfully");
+    navigate("/dashboard");
+  } catch (error) {
+    toast.error(error.message || "Registration failed");
   }
+}
 
   return (
     <main className="min-h-screen bg-[#F5F2EB] text-[#0A0A0A]">
