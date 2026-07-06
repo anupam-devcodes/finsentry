@@ -1,42 +1,137 @@
-# FinSentry
+# 💰 FinSentry
 
-**FinSentry** is an AI-powered personal finance workspace built with the MERN stack. It helps users track income and expenses, import CSV transactions, scan receipts with AI, understand spending patterns, and generate monthly financial summaries.
+<p align="center">
+AI-powered personal finance platform built with the MERN stack.
+</p>
 
-The project is designed as a practical finance intelligence system, not just a basic expense tracker.
+<p align="center">
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-UI-06B6D4?logo=tailwindcss)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![Gemini AI](https://img.shields.io/badge/AI-Gemini-blueviolet)
+![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-blue)
+
+</p>
 
 ---
 
-## Highlights
+## 🚀 Live Demo
 
-- JWT-based authentication with protected dashboard routes
-- Transaction ledger with search, filters, sorting, pagination, and CRUD actions
-- CSV import for bulk transaction entry
-- AI receipt scanning with reviewable transaction drafts
-- Mixed-category receipt splitting for receipts that contain different spending types
-- Analytics dashboard with income, expenses, balance, savings rate, cashflow trends, and expense breakdown
-- AI-generated monthly reports with email delivery support
-- Clean dark dashboard UI and responsive public pages
+🌐 **Application:** https://finsentry-eta.vercel.app
 
 ---
 
-## Core Feature: AI Receipt Intelligence
+## 📖 Overview
 
-FinSentry can analyze a receipt image and convert it into editable transaction drafts.
+FinSentry is a full-stack AI-powered personal finance workspace that enables users to manage their finances through intelligent automation.
 
-For mixed-category receipts, the system can split items into category-wise drafts before saving.
+Unlike traditional expense trackers, FinSentry combines transaction management, receipt intelligence, AI-generated financial insights, analytics, and automated reporting into a single platform.
 
-```txt
-Example mixed receipt
-→ Grocery ₹920
-→ Shopping ₹699
-→ Healthcare ₹250
+The application was built with a production-oriented architecture using React, Express.js, MongoDB, JWT authentication, Cloudinary, Gemini AI, and Resend.
+
+---
+
+## ✨ Key Features
+
+### 🔐 Authentication
+
+- JWT Authentication
+- Protected Routes
+- Persistent Login
+- Secure API Access
+
+### 💳 Transaction Management
+
+- Add / Edit / Delete Transactions
+- Bulk Delete
+- Search
+- Filters
+- Pagination
+- Category Management
+- Payment Methods
+- Recurring Transactions
+
+### 🤖 AI Receipt Intelligence
+
+Upload receipt images and let Gemini AI automatically:
+
+- Detect purchased items
+- Extract prices
+- Categorize expenses
+- Generate editable transaction drafts
+
+Supports mixed-category receipts.
+
+Example:
+
+```
+Receipt
+
+Milk ........ ₹80
+Medicine ... ₹250
+Shirt ....... ₹799
+
+↓
+
+Grocery ₹80
+Healthcare ₹250
+Shopping ₹799
 ```
 
-The user can review, edit, select, and approve extracted rows before they are added to the ledger.
+Users can review every transaction before importing.
 
 ---
 
-## Tech Stack
+### 📈 Analytics Dashboard
+
+Interactive dashboard including
+
+- Income
+- Expenses
+- Balance
+- Savings Rate
+- Cash Flow Trends
+- Expense Breakdown
+- Recent Transactions
+
+---
+
+### 📂 CSV Import
+
+Bulk upload transactions from CSV files.
+
+---
+
+### 📧 AI Monthly Reports
+
+Generate AI-powered financial summaries and send them directly to email.
+
+---
+
+## 🏗️ Architecture
+
+```
+React Frontend
+        │
+ Axios API Layer
+        │
+ Express REST API
+        │
+Business Services
+        │
+ MongoDB Database
+        │
+ Gemini AI
+ Cloudinary
+ Resend
+```
+
+---
+
+## 🛠 Tech Stack
 
 ### Frontend
 
@@ -66,106 +161,141 @@ The user can review, edit, select, and approve extracted rows before they are ad
 
 ---
 
-## Project Structure
+## 📸 Screenshots
 
-```txt
-finsentry/
-├── client/
-│   └── src/
-│       ├── api/
-│       ├── components/
-│       ├── context/
-│       ├── hooks/
-│       ├── layouts/
-│       ├── pages/
-│       ├── routes/
-│       ├── utils/
-│       ├── App.jsx
-│       └── main.jsx
+### Landing Page
+
+(Add Screenshot)
+
+---
+
+### Dashboard
+
+(Add Screenshot)
+
+---
+
+### Transaction Ledger
+
+(Add Screenshot)
+
+---
+
+### Analytics
+
+(Add Screenshot)
+
+---
+
+### AI Receipt Scanner
+
+(Add Screenshot)
+
+---
+
+## 📁 Project Structure
+
+```text
+finsentry
 │
-└── server/
-    └── src/
-        ├── config/
-        ├── controllers/
-        ├── middleware/
-        ├── models/
-        ├── routes/
-        ├── services/
-        ├── utils/
-        └── validators/
+├── client
+│   ├── components
+│   ├── context
+│   ├── hooks
+│   ├── layouts
+│   ├── pages
+│   ├── routes
+│   └── utils
+│
+└── server
+    ├── config
+    ├── controllers
+    ├── middleware
+    ├── models
+    ├── routes
+    ├── services
+    ├── validators
+    └── utils
 ```
 
 ---
 
-## Main Modules
+## ⚙️ Environment Variables
 
-### Authentication
+Server requires
 
-Users can register, log in, stay authenticated after refresh, and access protected routes using JWT-based authentication.
+```env
+PORT=
+MONGO_URI=
 
-### Dashboard
+JWT_SECRET=
+JWT_EXPIRES_IN=
 
-The dashboard gives a financial overview with:
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 
-- Total income
-- Total expenses
-- Balance
-- Savings rate
-- Cashflow trend
-- Expense category breakdown
-- Recent transactions
+GEMINI_API_KEY=
+GEMINI_MODEL=
 
-### Transactions
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
 
-The transaction ledger supports:
-
-- Add, edit, and delete transactions
-- Bulk delete
-- Search and filters
-- Pagination
-- Recurring transaction fields
-- Category and payment method tracking
-
-### Receipt Scanner
-
-Users can upload receipt images. Gemini AI extracts transaction drafts, which can be reviewed before saving.
-
-### CSV Import
-
-Users can upload CSV files to add multiple transactions at once.
-
-### AI Reports
-
-Users can generate monthly summaries from their transaction history and send reports to email.
-
-> Email delivery uses Resend. In test mode, emails can only be sent to the verified Resend account email unless a sending domain is verified.
+CLIENT_URL=
+```
 
 ---
 
-## API Overview
+## 🚀 Installation
 
-### Auth
+Clone the repository
 
-```txt
+```bash
+git clone https://github.com/anupam-devcodes/finsentry.git
+```
+
+Backend
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+Frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+---
+
+## 🌐 REST API
+
+### Authentication
+
+```
 POST /api/auth/register
 POST /api/auth/login
 ```
 
 ### User
 
-```txt
+```
 GET /api/users/me
 ```
 
 ### Analytics
 
-```txt
+```
 GET /api/analytics/dashboard
 ```
 
 ### Transactions
 
-```txt
+```
 GET    /api/transactions
 POST   /api/transactions
 PATCH  /api/transactions/:id
@@ -179,128 +309,34 @@ POST   /api/transactions/:id/receipt
 
 ### Reports
 
-```txt
+```
 POST /api/reports/monthly/generate
 POST /api/reports/monthly/send
 ```
 
 ---
 
-## Getting Started
+## 🎯 Future Improvements
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/anupam-devcodes/finsentry.git
-cd finsentry
-```
-
-### 2. Backend setup
-
-```bash
-cd server
-npm install
-npm run dev
-```
-
-Backend runs on:
-
-```txt
-http://localhost:5000
-```
-
-Create a `.env` file inside `server/`:
-
-```env
-PORT=5000
-NODE_ENV=development
-
-MONGO_URI=your_mongodb_connection_string
-
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-2.5-flash
-
-RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=FinSentry AI <onboarding@resend.dev>
-
-CLIENT_URL=http://localhost:5173
-```
-
-### 3. Frontend setup
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-Frontend runs on:
-
-```txt
-http://localhost:5173
-```
+- Email Domain Verification
+- Avatar Upload
+- Budget Planning
+- Financial Goals
+- Multi-Currency Support
+- Advanced Analytics
+- Mobile PWA
 
 ---
 
-## Frontend Auth Flow
-
-```txt
-Login/Register
-→ API request through Axios
-→ JWT saved in localStorage
-→ AuthContext stores user
-→ Protected routes become accessible
-→ /api/users/me restores user after refresh
-```
-
----
-
-## Design Direction
-
-FinSentry uses two visual systems:
-
-```txt
-Public pages  → light editorial fintech style
-Private app   → dark professional finance workspace
-```
-
-The UI focuses on clarity, readable financial data, and explainable workflows.
-
----
-
-## Status
-
-Completed:
-
-- Backend API
-- Auth flow
-- Dashboard
-- Transactions ledger
-- Receipt scanning flow
-- CSV import
-- Monthly AI reports
-- Public pages
-- Privacy and Terms pages
-- Responsive UI polish
-
-Planned improvements:
-
-- Production deployment
-- Custom verified email domain
-- More advanced analytics filters
-- Optional avatar upload support
-
----
-
-## Author
+## 👨‍💻 Author
 
 **Anupam Choubey**
 
-GitHub: [anupam-devcodes](https://github.com/anupam-devcodes)
+GitHub:
+https://github.com/anupam-devcodes
+
+---
+
+## ⭐ Support
+
+If you found this project useful, consider giving it a ⭐ on GitHub.
