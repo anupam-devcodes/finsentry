@@ -161,38 +161,6 @@ Business Services
 
 ---
 
-## 📸 Screenshots
-
-### Landing Page
-
-(Add Screenshot)
-
----
-
-### Dashboard
-
-(Add Screenshot)
-
----
-
-### Transaction Ledger
-
-(Add Screenshot)
-
----
-
-### Analytics
-
-(Add Screenshot)
-
----
-
-### AI Receipt Scanner
-
-(Add Screenshot)
-
----
-
 ## 📁 Project Structure
 
 ```text
