@@ -807,7 +807,7 @@ function LandingPage() {
                 Terms
               </Link>
               <a
-                href="mailto:hariomgaaergy@gmail.com"
+                href="mailto:anupamchoubey0722@gmail.com"
                 className="font-mono text-xs text-[#8E8E8E] hover:text-[#F5F2EB] hover:underline"
               >
                 Contact
