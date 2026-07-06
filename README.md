@@ -1,92 +1,38 @@
 # FinSentry
 
-**FinSentry** is an AI-powered personal finance intelligence platform built with the MERN stack. It helps users manage transactions, import CSV data, scan receipts with AI, analyze spending patterns, and generate monthly financial insights.
+**FinSentry** is an AI-powered personal finance workspace built with the MERN stack. It helps users track income and expenses, import CSV transactions, scan receipts with AI, understand spending patterns, and generate monthly financial summaries.
 
-The project focuses on turning scattered financial activity into a structured, reviewable, and insight-driven ledger.
+The project is designed as a practical finance intelligence system, not just a basic expense tracker.
 
 ---
 
-## Overview
+## Highlights
 
-FinSentry is designed for users who want more than basic expense tracking.
+- JWT-based authentication with protected dashboard routes
+- Transaction ledger with search, filters, sorting, pagination, and CRUD actions
+- CSV import for bulk transaction entry
+- AI receipt scanning with reviewable transaction drafts
+- Mixed-category receipt splitting for receipts that contain different spending types
+- Analytics dashboard with income, expenses, balance, savings rate, cashflow trends, and expense breakdown
+- AI-generated monthly reports with email delivery support
+- Clean dark dashboard UI and responsive public pages
 
-It supports multiple ways of adding financial data:
+---
 
-- Manual transaction entry
-- CSV transaction import
-- AI-powered receipt scanning
-- Recurring transaction handling
+## Core Feature: AI Receipt Intelligence
 
-A key feature of FinSentry is **multi-category receipt extraction**. Instead of storing an entire receipt as one vague expense, FinSentry can split a single receipt into multiple category-wise transaction drafts.
+FinSentry can analyze a receipt image and convert it into editable transaction drafts.
 
-Example:
+For mixed-category receipts, the system can split items into category-wise drafts before saving.
 
 ```txt
-One D-Mart receipt
-→ Food ₹560
+Example mixed receipt
 → Grocery ₹920
-→ Clothing ₹699
+→ Shopping ₹699
+→ Healthcare ₹250
 ```
 
-Users can review extracted drafts before saving them to their ledger, keeping analytics more accurate and meaningful.
-
----
-
-## Features
-
-### Authentication
-
-- User registration and login
-- JWT-based authentication
-- Protected API routes
-- Persistent login using stored access token
-- Current user restoration on page refresh
-- Logout flow
-
-### Transaction Management
-
-- Create income and expense transactions
-- View all transactions
-- Update transactions
-- Delete transactions
-- Bulk delete transactions
-- Category-based tracking
-- Payment method tracking
-- Date-based transaction records
-- Recurring transaction support
-
-### AI Receipt Intelligence
-
-- Upload receipt images
-- Store receipt files using Cloudinary
-- Analyze receipts using Gemini AI
-- Extract merchant, date, items, categories, and amounts
-- Split one receipt into multiple category-wise transaction drafts
-- Review extracted rows before saving
-- Save selected drafts using bulk create
-
-### CSV Import
-
-- Upload CSV transaction data
-- Import multiple transactions at once
-- Reduce manual data entry for bank-style records
-
-### Analytics Dashboard
-
-- Total income
-- Total expense
-- Balance
-- Savings rate
-- Category-wise spending
-- Recent transaction activity
-- Dashboard-ready financial overview
-
-### AI Monthly Reports
-
-- Generate monthly AI-written financial summaries
-- Explain spending behavior in plain language
-- Highlight category trends and saving patterns
-- Send monthly reports to the registered email address
+The user can review, edit, select, and approve extracted rows before they are added to the ledger.
 
 ---
 
@@ -102,6 +48,7 @@ Users can review extracted drafts before saving them to their ledger, keeping an
 - Axios
 - Context API
 - React Hot Toast
+- Recharts
 
 ### Backend
 
@@ -110,16 +57,12 @@ Users can review extracted drafts before saving them to their ledger, keeping an
 - MongoDB
 - Mongoose
 - JWT
-- bcrypt
 - Zod
 - Multer
 - Cloudinary
 - Gemini AI
-- Node Cron
 - Resend
-- Helmet
-- CORS
-- express-rate-limit
+- Node Cron
 
 ---
 
@@ -138,73 +81,68 @@ finsentry/
 │       ├── routes/
 │       ├── utils/
 │       ├── App.jsx
-│       ├── main.jsx
-│       └── index.css
+│       └── main.jsx
 │
 └── server/
     └── src/
         ├── config/
         ├── controllers/
-        ├── middlewares/
+        ├── middleware/
         ├── models/
         ├── routes/
         ├── services/
         ├── utils/
-        ├── validators/
-        └── app.js
+        └── validators/
 ```
 
 ---
 
-## Frontend Architecture
+## Main Modules
 
-The frontend uses a clean route-based structure with protected private pages.
+### Authentication
 
-### Main frontend layers
+Users can register, log in, stay authenticated after refresh, and access protected routes using JWT-based authentication.
 
-```txt
-API layer
-→ Axios instance and backend request functions
+### Dashboard
 
-Auth layer
-→ AuthContext and useAuth hook
+The dashboard gives a financial overview with:
 
-Routing layer
-→ React Router and ProtectedRoute
+- Total income
+- Total expenses
+- Balance
+- Savings rate
+- Cashflow trend
+- Expense category breakdown
+- Recent transactions
 
-Layout layer
-→ DashboardLayout for private app pages
+### Transactions
 
-Page layer
-→ Login, Register, Dashboard, Ledger, Reports, Profile, etc.
-```
+The transaction ledger supports:
 
-### Authentication flow
+- Add, edit, and delete transactions
+- Bulk delete
+- Search and filters
+- Pagination
+- Recurring transaction fields
+- Category and payment method tracking
 
-```txt
-Login/Register form
-→ AuthContext method
-→ API function
-→ Axios request
-→ Backend response
-→ JWT saved in localStorage
-→ User stored in context
-→ Protected dashboard opens
-```
+### Receipt Scanner
 
-### Refresh flow
+Users can upload receipt images. Gemini AI extracts transaction drafts, which can be reviewed before saving.
 
-```txt
-Browser refresh
-→ AuthProvider checks localStorage token
-→ Frontend calls /api/users/me
-→ Backend verifies token
-→ User state is restored
-```
+### CSV Import
+
+Users can upload CSV files to add multiple transactions at once.
+
+### AI Reports
+
+Users can generate monthly summaries from their transaction history and send reports to email.
+
+> Email delivery uses Resend. In test mode, emails can only be sent to the verified Resend account email unless a sending domain is verified.
 
 ---
 
-## API Routes
+## API Overview
 
 ### Auth
 
@@ -230,10 +168,8 @@ GET /api/analytics/dashboard
 ```txt
 GET    /api/transactions
 POST   /api/transactions
-GET    /api/transactions/:id
 PATCH  /api/transactions/:id
 DELETE /api/transactions/:id
-
 DELETE /api/transactions/bulk
 POST   /api/transactions/import
 POST   /api/transactions/scan-receipt
@@ -250,31 +186,30 @@ POST /api/reports/monthly/send
 
 ---
 
-## Local Development
+## Getting Started
 
-### Prerequisites
+### 1. Clone the repository
 
-Make sure the following are installed:
+```bash
+git clone https://github.com/anupam-devcodes/finsentry.git
+cd finsentry
+```
 
-- Node.js
-- npm
-- MongoDB Atlas or local MongoDB
-- Cloudinary account
-- Gemini API key
-- Resend API key
-
----
-
-## Backend Setup
+### 2. Backend setup
 
 ```bash
 cd server
 npm install
+npm run dev
 ```
 
-Create a `.env` file inside the `server` folder.
+Backend runs on:
 
-Example:
+```txt
+http://localhost:5000
+```
+
+Create a `.env` file inside `server/`:
 
 ```env
 PORT=5000
@@ -290,28 +225,15 @@ CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
 GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
 
 RESEND_API_KEY=your_resend_api_key
-EMAIL_FROM=your_verified_sender_email
+RESEND_FROM_EMAIL=FinSentry AI <onboarding@resend.dev>
 
 CLIENT_URL=http://localhost:5173
 ```
 
-Run the backend:
-
-```bash
-npm run dev
-```
-
-Backend URL:
-
-```txt
-http://localhost:5000
-```
-
----
-
-## Frontend Setup
+### 3. Frontend setup
 
 ```bash
 cd client
@@ -319,7 +241,7 @@ npm install
 npm run dev
 ```
 
-Frontend URL:
+Frontend runs on:
 
 ```txt
 http://localhost:5173
@@ -327,93 +249,53 @@ http://localhost:5173
 
 ---
 
-## Environment Configuration
+## Frontend Auth Flow
 
-The frontend currently uses:
-
-```js
-http://localhost:5000/api
+```txt
+Login/Register
+→ API request through Axios
+→ JWT saved in localStorage
+→ AuthContext stores user
+→ Protected routes become accessible
+→ /api/users/me restores user after refresh
 ```
-
-For deployment, move the API URL to a Vite environment variable:
-
-```env
-VITE_API_BASE_URL=https://your-backend-url.com/api
-```
-
----
-
-## Current Development Status
-
-### Completed
-
-- Backend API implementation
-- Authentication backend
-- Transaction backend
-- Receipt scanning backend
-- CSV import backend
-- Analytics backend
-- AI reports backend
-- React frontend setup
-- Tailwind setup
-- Routing setup
-- Protected routes
-- Login/register UI
-- Login/register backend integration
-- AuthContext implementation
-- JWT persistence
-- User restore on refresh
-- Dashboard shell
-- Basic profile page
-- Logout flow
-
-### In Progress
-
-- Frontend dashboard analytics page
-- Transaction ledger UI
-- Receipt review UI
-- CSV import UI
-- AI reports UI
-
----
-
-## Planned Frontend Work
-
-- Real analytics dashboard
-- Transaction table with search and filters
-- Add/edit/delete transaction forms
-- Receipt Intelligence review flow
-- CSV import screen
-- AI monthly reports page
-- Responsive dashboard sidebar
-- Deployment polish
 
 ---
 
 ## Design Direction
 
-FinSentry uses two visual directions:
+FinSentry uses two visual systems:
 
 ```txt
-Public pages
-→ light editorial finance style
-
-Private app
-→ dark finance command center style
+Public pages  → light editorial fintech style
+Private app   → dark professional finance workspace
 ```
 
-The landing page focuses on product storytelling, while the dashboard focuses on usability, financial data, and workflows.
+The UI focuses on clarity, readable financial data, and explainable workflows.
 
 ---
 
-## Security Notes
+## Status
 
-- Passwords are hashed before storage
-- JWT is used for authenticated API access
-- Protected routes require valid Bearer token
-- Helmet is used for secure HTTP headers
-- CORS is configured for frontend access
-- Rate limiting is applied to reduce abuse
+Completed:
+
+- Backend API
+- Auth flow
+- Dashboard
+- Transactions ledger
+- Receipt scanning flow
+- CSV import
+- Monthly AI reports
+- Public pages
+- Privacy and Terms pages
+- Responsive UI polish
+
+Planned improvements:
+
+- Production deployment
+- Custom verified email domain
+- More advanced analytics filters
+- Optional avatar upload support
 
 ---
 
@@ -422,9 +304,3 @@ The landing page focuses on product storytelling, while the dashboard focuses on
 **Anupam Choubey**
 
 GitHub: [anupam-devcodes](https://github.com/anupam-devcodes)
-
----
-
-## License
-
-This project is intended for academic, learning, and portfolio purposes.
