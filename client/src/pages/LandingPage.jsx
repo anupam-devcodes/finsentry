@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BrandLogo from "../components/common/BrandLogo";
 
 const marketTicker = [
   { label: "NIFTY 50", change: "▲ 0.45%", value: "24,834.85", type: "up" },
@@ -115,18 +116,7 @@ function LandingPage() {
             onClick={scrollToTop}
             className="flex items-center gap-3 text-left"
           >
-            <span className="grid h-10 w-10 place-items-center rounded-xl border border-[#111] bg-[#FFF9EF] font-mono text-sm font-bold">
-              FS
-            </span>
-
-            <span>
-              <span className="block font-mono text-sm font-bold uppercase tracking-[0.18em]">
-                FinSentry
-              </span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.16em] text-[#8B8173]">
-                Ledger Intelligence
-              </span>
-            </span>
+            <BrandLogo size={38} showText variant="light" />
           </button>
 
           <div className="hidden items-center gap-9 md:flex">
@@ -182,7 +172,7 @@ function LandingPage() {
               Track → Organize → Understand
             </div>
 
-         <h1 className="max-w-[680px] text-[clamp(3.1rem,5vw,5.4rem)] font-black leading-[0.95] tracking-[-0.05em] text-[#0A0A0A]">
+         <h1 className="max-w-[680px] text-[clamp(2.4rem,4.5vw,4.2rem)] font-black leading-[1.02] tracking-[-0.035em] text-[#0A0A0A]">
   <span className="block">Know where</span>
   <span className="block">every <span className="text-[#C8382A]">rupee</span></span>
   <span className="block">actually goes.</span>
@@ -469,7 +459,7 @@ function LandingPage() {
           How it works
         </p>
 
-        <h2 className="mt-3 max-w-2xl text-[clamp(2.4rem,4vw,4.4rem)] font-black leading-[1.02] tracking-[-0.055em]">
+        <h2 className="mt-3 max-w-2xl text-[clamp(2rem,3.5vw,3.2rem)] font-black leading-[1.05] tracking-[-0.035em]">
           From data to clarity.
         </h2>
       </div>
@@ -573,7 +563,7 @@ function LandingPage() {
               Smart Extraction
             </div>
 
-            <h2 className="text-4xl font-black leading-[0.95] tracking-[-0.07em]">
+            <h2 className="text-[clamp(1.8rem,3vw,2.8rem)] font-black leading-[1.06] tracking-[-0.035em]">
               One receipt.
               <br />
               Multiple categories.
@@ -708,18 +698,7 @@ function LandingPage() {
         <div className="mx-auto grid max-w-[1500px] gap-10 md:grid-cols-[1.5fr_0.8fr_0.8fr_0.8fr]">
           <div>
             <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-xl border border-[#F5F2EB] font-mono text-sm font-bold">
-                FS
-              </span>
-
-              <div>
-                <p className="font-mono text-sm font-bold uppercase tracking-[0.18em]">
-                  FinSentry
-                </p>
-                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#8E8E8E]">
-                  Ledger Intelligence
-                </p>
-              </div>
+              <BrandLogo size={40} showText variant="dark" subtitle="Ledger Intelligence" />
             </div>
 
             <p className="mt-6 max-w-md font-mono text-xs leading-6 text-[#A8A8A8]">

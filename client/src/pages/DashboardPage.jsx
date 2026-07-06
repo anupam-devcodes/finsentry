@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -7,9 +8,19 @@ import { formatCurrency, formatPercentage } from "../utils/formatCurrency";
 import LoadingState from "../components/common/LoadingState";
 import ErrorState from "../components/common/ErrorState";
 import StatCard from "../components/dashboard/StatCard";
+import CashflowChart from "../components/dashboard/CashflowChart";
+import ExpenseDonutChart from "../components/dashboard/ExpenseDonutChart";
 
 function extractDashboardData(response) {
-  return response?.data || response?.dashboard || response || {};
+  // Backend shape: { success, message, data: { dashboard: { summary, expenseByCategory, monthlyTrend, recentTransactions } } }
+  // analyticsApi.js returns response.data (axios unwraps once), so we receive { success, message, data: { dashboard } }
+  return (
+    response?.data?.dashboard ||
+    response?.dashboard ||
+    response?.data ||
+    response ||
+    {}
+  );
 }
 
 function getNumber(...values) {
@@ -24,13 +35,6 @@ function getNumber(...values) {
   return 0;
 }
 
-function getCategoryName(category) {
-  return category?.category || category?.name || category?._id || "Other";
-}
-
-function getCategoryAmount(category) {
-  return getNumber(category?.amount, category?.total, category?.value);
-}
 
 function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -112,10 +116,10 @@ function DashboardPage() {
     [];
 
   const categoryBreakdown =
+    dashboardData?.expenseByCategory ||
     dashboardData?.categoryBreakdown ||
     dashboardData?.expensePieChartBreakdown ||
     dashboardData?.categories ||
-    dashboardData?.expenseByCategory ||
     [];
 
   const monthlyTrend =
@@ -191,93 +195,21 @@ function DashboardPage() {
       <section className="grid gap-5 xl:grid-cols-[1.45fr_0.9fr]">
         {/* Cashflow trend */}
         <div className="rounded-3xl border border-white/10 bg-[#0B111C] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold leading-normal tracking-[-0.01em] text-white">
-                Cashflow Trend
-              </h3>
-              <p className="mt-1 text-sm text-slate-500">
-                Income and expense overview
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-2 text-slate-400">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Income
-              </span>
-              <span className="flex items-center gap-2 text-slate-400">
-                <span className="h-2 w-2 rounded-full bg-red-400" />
-                Expense
-              </span>
-            </div>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold leading-normal tracking-[-0.01em] text-white">
+              Cashflow Trend
+            </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Monthly income vs expense overview
+            </p>
           </div>
 
-          <div className="mt-6">
-            {monthlyTrend.length > 0 ? (
-              <div className="space-y-4">
-                {monthlyTrend.slice(0, 8).map((item, index) => {
-                  const label =
-                    item?.month ||
-                    item?.label ||
-                    item?._id ||
-                    `Month ${index + 1}`;
-
-                  const income = getNumber(item?.income, item?.totalIncome);
-                  const expense = getNumber(
-                    item?.expense,
-                    item?.totalExpense,
-                    item?.totalExpenses
-                  );
-
-                  const maxValue = Math.max(income, expense, 1);
-
-                  return (
-                    <div key={`${label}-${index}`}>
-                      <div className="mb-2 flex items-center justify-between text-xs text-slate-500">
-                        <span>{label}</span>
-                        <span>
-                          {formatCurrency(income)} / {formatCurrency(expense)}
-                        </span>
-                      </div>
-
-                      <div className="grid gap-2">
-                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                          <div
-                            className="h-full rounded-full bg-emerald-400"
-                            style={{ width: `${(income / maxValue) * 100}%` }}
-                          />
-                        </div>
-
-                        <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                          <div
-                            className="h-full rounded-full bg-red-400"
-                            style={{ width: `${(expense / maxValue) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="grid min-h-[260px] place-items-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center">
-                <div>
-                  <p className="text-sm font-semibold text-white">
-                    No trend data yet
-                  </p>
-                  <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                    Add transactions to generate income and expense trends.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          <CashflowChart data={monthlyTrend} />
         </div>
 
         {/* Expense breakdown */}
         <div className="rounded-3xl border border-white/10 bg-[#0B111C] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
-          <div>
+          <div className="mb-5">
             <h3 className="text-lg font-semibold leading-normal tracking-[-0.01em] text-white">
               Expense Breakdown
             </h3>
@@ -286,51 +218,10 @@ function DashboardPage() {
             </p>
           </div>
 
-          <div className="mt-6 space-y-4">
-            {categoryBreakdown.length > 0 ? (
-              categoryBreakdown.slice(0, 6).map((category, index) => {
-                const name = getCategoryName(category);
-                const amount = getCategoryAmount(category);
-                const percentage =
-                  totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
-
-                return (
-                  <div key={`${name}-${index}`}>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="font-semibold text-slate-200">
-                        {name}
-                      </span>
-                      <span className="text-slate-500">
-                        {formatCurrency(amount)}
-                      </span>
-                    </div>
-
-                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400"
-                        style={{ width: `${Math.min(percentage, 100)}%` }}
-                      />
-                    </div>
-
-                    <p className="mt-1 text-right text-xs text-slate-600">
-                      {formatPercentage(percentage)}
-                    </p>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="grid min-h-[260px] place-items-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center">
-                <div>
-                  <p className="text-sm font-semibold text-white">
-                    No category data yet
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Add expenses to see category-wise spending.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+          <ExpenseDonutChart
+            data={categoryBreakdown}
+            totalExpense={totalExpense}
+          />
         </div>
       </section>
 
@@ -367,13 +258,13 @@ function DashboardPage() {
                     "Untitled Transaction";
 
                   const category = transaction?.category || "Uncategorized";
-                  const type = transaction?.type || "EXPENSE";
+                  const type = transaction?.type || "expense";
                   const amount = getNumber(transaction?.amount);
-                  const isIncome = type === "INCOME";
+                  const isIncome = type === "income";
 
                   return (
                     <div
-                      key={transaction?._id || `${title}-${amount}`}
+                      key={transaction?.id || transaction?._id || `${title}-${amount}`}
                       className="grid gap-3 bg-white/[0.02] p-4 sm:grid-cols-[1fr_150px_120px]"
                     >
                       <div className="min-w-0">

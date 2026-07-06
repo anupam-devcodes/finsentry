@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import BrandLogo from "../components/common/BrandLogo";
 
 const navItems = [
   { label: "Command Center", path: "/dashboard", icon: "⌂" },
@@ -48,18 +49,7 @@ function DashboardLayout() {
 >      {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-[292px] flex-col border-r border-white/10 bg-[#070B13]/95 px-5 py-6 lg:flex">
         <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-xl border border-emerald-400/30 bg-white text-base font-extrabold text-[#050912] shadow-[0_0_30px_rgba(52,211,153,0.18)]">
-            FS
-          </div>
-
-          <div>
-            <p className="font-mono text-sm font-bold uppercase tracking-[0.24em] text-white">
-              FinSentry
-            </p>
-            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">
-              Ledger Intelligence
-            </p>
-          </div>
+          <BrandLogo size={44} showText variant="dark" />
         </div>
 
         <nav className="mt-10 space-y-2">

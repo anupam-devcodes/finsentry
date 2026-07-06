@@ -7,6 +7,7 @@ const convertPaiseToRupees = (amountInPaise) => {
 const formatTransaction = (transaction) => {
   return {
     id: transaction._id,
+    title: transaction.title || "",
     type: transaction.type,
     amount: convertPaiseToRupees(transaction.amountInPaise),
     amountInPaise: transaction.amountInPaise,

@@ -57,7 +57,7 @@ export async function importTransactionsCsv(file) {
 
 export async function scanReceipt(file) {
   const formData = new FormData();
-  formData.append("receipt", file);
+  formData.append("file", file);
 
   const response = await axiosInstance.post(
     "/transactions/scan-receipt",

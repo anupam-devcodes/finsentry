@@ -5,7 +5,7 @@ import { aiReceiptExtractionSchema } from "../validators/ai-receipt.validator.js
 const RECEIPT_SCAN_PROMPT = `
 You are a financial receipt extraction assistant.
 
-Read the receipt image and extract transaction details.
+Your job is to read the receipt image, identify visible line items, classify them into financial spending categories, and return reviewable transaction drafts.
 
 Return ONLY valid JSON.
 Do not return markdown.
@@ -26,23 +26,41 @@ Required JSON shape:
       "confidence": number between 0 and 1
     }
   ],
-  "receiptSummary": "short summary of what was extracted"
+  "receiptSummary": "short summary of what was extracted and how items were grouped"
 }
+
+Important category meanings:
+- Food: restaurant meals, snacks, cooked food, takeaway, cafe, dining.
+- Grocery: edible grocery items, supermarket food staples, fruits, vegetables, dairy, packaged food.
+- Clothing: clothes, shoes, apparel, fashion items.
+- Shopping: household supplies, toiletries, baby wipes, toilet paper, cosmetics, electronics, general non-food retail items.
+- Bills: electricity, water, internet, phone, subscriptions, utilities.
+- Healthcare: medicines, pharmacy, medical items.
+- Education: books, stationery, courses, school or study items.
+- Travel: fuel, taxi, public transport, hotel, flights, parking.
+- Entertainment: movies, games, events, leisure.
+- Rent: rent or accommodation rent.
+- Other: only when no category clearly fits.
 
 Rules:
 - type must always be "expense".
-- If the receipt contains only one clear spending category, return one transaction.
-- If the receipt contains items from multiple categories, group items by category and return one transaction per category.
-- Do not create one transaction for every tiny item unless each item is clearly a separate category.
+- First identify the visible receipt line items internally.
+- Classify each visible line item into one of the allowed categories.
+- Then group line items by category.
+- Return one transaction draft per category group.
+- If all meaningful items belong to one category, return one transaction only.
+- If a supermarket receipt contains both edible grocery items and non-food household/personal-care items, do NOT merge everything into Grocery. Split Grocery and Shopping.
+- If a receipt contains clothing, medicine, electronics, stationery, household items, or bills along with groceries/food, return separate category-wise transactions.
+- Do not create one transaction for every tiny item. Group by category.
 - Use the final payable amount if the receipt belongs to one category.
-- For multi-category receipts, split the amount category-wise as accurately as possible.
+- For multi-category receipts, split the amount category-wise as accurately as possible from visible item prices.
 - The sum of extracted transactions should approximately match the receipt total.
-- If category separation is unclear, return one transaction with category "Other".
+- If item prices are unreadable but categories are clear, estimate category-wise split conservatively.
+- If category separation is genuinely unclear, return one transaction with the best matching category.
 - If date is unclear, use today's date.
 - If payment method is unclear, use "other".
-- Keep descriptions short.
+- Keep descriptions short and useful.
 `;
-
 const getTodayDateString = () => {
   return new Date().toISOString().split("T")[0];
 };
