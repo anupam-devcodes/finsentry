@@ -49,13 +49,12 @@ function ProfilePage() {
       </h1>
 
       <p className="mt-2 max-w-xl font-mono text-sm leading-7 text-slate-400">
-        Manage your account identity and session. Profile editing and avatar
-        upload can be added after the main MVP screens are complete.
+        Manage your account identity and session details.
       </p>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">
-        <div className="border border-[#1B202B] bg-[#0D111A] p-6">
-          <div className="mx-auto grid h-28 w-28 place-items-center overflow-hidden border border-[#2A3140] bg-[#070A0F] font-mono text-3xl font-bold text-[#F5F2EB]">
+      <section className="mt-8 grid gap-6 lg:grid-cols-[300px_1fr]">
+        <div className="rounded-3xl border border-[#1B202B] bg-[#0D111A] p-6 flex flex-col items-center">
+          <div className="grid h-28 w-28 place-items-center overflow-hidden rounded-full border-2 border-emerald-400/20 bg-[#070A0F] font-mono text-3xl font-bold text-[#F5F2EB]">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -75,14 +74,6 @@ function ProfilePage() {
               {userEmail}
             </p>
           </div>
-
-          <button
-            type="button"
-            className="mt-6 w-full border border-[#2A3140] bg-[#070A0F] px-4 py-3 font-mono text-xs font-bold uppercase tracking-wide text-slate-300"
-            disabled
-          >
-            Upload avatar — coming later
-          </button>
         </div>
 
         <div className="border border-[#1B202B] bg-[#0D111A] p-6">

@@ -2,11 +2,36 @@ import { Link } from "react-router-dom";
 import BrandLogo from "../components/common/BrandLogo";
 
 const marketTicker = [
-  { label: "NIFTY 50", change: "▲ 0.45%", value: "24,834.85", type: "up" },
-  { label: "SENSEX", change: "▲ 0.39%", value: "81,721.08", type: "up" },
-  { label: "USD/INR", change: "▼ 0.11%", value: "83.12", type: "down" },
-  { label: "GOLD", change: "▲ 0.28%", value: "₹72,245", type: "up" },
-  { label: "MARKET", change: "●", value: "OPEN", type: "live" },
+  {
+    label: "NIFTY 50",
+    change: "▲ 1.14%",
+    value: "23,893.20",
+    type: "up",
+  },
+  {
+    label: "SENSEX",
+    change: "▲ 1.18%",
+    value: "76,420.73",
+    type: "up",
+  },
+  {
+    label: "USD/INR",
+    change: "▲ 0.65%",
+    value: "95.27",
+    type: "up",
+  },
+  {
+    label: "GOLD",
+    change: "▲ 0.27%",
+    value: "4,049.22",
+    type: "up",
+  },
+  {
+    label: "MARKET",
+    change: "●",
+    value: "OPEN",
+    type: "live",
+  },
 ];
 
 const capabilities = [
@@ -750,7 +775,7 @@ function LandingPage() {
                 rel="noreferrer"
                 className="font-mono text-xs text-[#8E8E8E] hover:text-[#F5F2EB] hover:underline"
               >
-                GitHub ↗
+                GitHub
               </a>
               <a
                 href="https://github.com/anupam-devcodes/finsentry#readme"
@@ -758,7 +783,7 @@ function LandingPage() {
                 rel="noreferrer"
                 className="font-mono text-xs text-[#8E8E8E] hover:text-[#F5F2EB] hover:underline"
               >
-                Docs ↗
+                Docs
               </a>
             </div>
           </div>
@@ -769,8 +794,18 @@ function LandingPage() {
             </p>
 
             <div className="mt-5 flex flex-col gap-3">
-              <span className="font-mono text-xs text-[#8E8E8E]">Privacy</span>
-              <span className="font-mono text-xs text-[#8E8E8E]">Terms</span>
+              <Link
+                to="/privacy"
+                className="font-mono text-xs text-[#8E8E8E] hover:text-[#F5F2EB] hover:underline"
+              >
+                Privacy
+              </Link>
+              <Link
+                to="/terms"
+                className="font-mono text-xs text-[#8E8E8E] hover:text-[#F5F2EB] hover:underline"
+              >
+                Terms
+              </Link>
               <a
                 href="mailto:hariomgaaergy@gmail.com"
                 className="font-mono text-xs text-[#8E8E8E] hover:text-[#F5F2EB] hover:underline"
