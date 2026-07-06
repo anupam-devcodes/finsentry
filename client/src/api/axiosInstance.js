@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://finsentry-4g7n.onrender.com",
+  baseURL: "https://finsentry-4g7n.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
