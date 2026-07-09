@@ -1,20 +1,10 @@
 # 💰 FinSentry
 
-<p align="center">
-AI-powered personal finance platform built with the MERN stack.
-</p>
+> **AI-powered Personal Finance Intelligence Platform built with the MERN Stack.**
 
-<p align="center">
+FinSentry helps users effortlessly manage their finances by combining **AI-powered receipt processing**, **transaction management**, **financial analytics**, and **automated monthly reports** into a single modern workspace.
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
-![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-UI-06B6D4?logo=tailwindcss)
-![JWT](https://img.shields.io/badge/Auth-JWT-orange)
-![Gemini AI](https://img.shields.io/badge/AI-Gemini-blueviolet)
-![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-blue)
-
-</p>
+Unlike traditional expense trackers that require manual data entry, FinSentry leverages **Google Gemini AI** to intelligently extract, categorize, and organize expenses from receipt images while giving users complete control before importing them.
 
 ---
 
@@ -24,17 +14,7 @@ AI-powered personal finance platform built with the MERN stack.
 
 ---
 
-## 📖 Overview
-
-FinSentry is a full-stack AI-powered personal finance workspace that enables users to manage their finances through intelligent automation.
-
-Unlike traditional expense trackers, FinSentry combines transaction management, receipt intelligence, AI-generated financial insights, analytics, and automated reporting into a single platform.
-
-The application was built with a production-oriented architecture using React, Express.js, MongoDB, JWT authentication, Cloudinary, Gemini AI, and Resend.
-
----
-
-## ✨ Key Features
+# ✨ Features
 
 ### 🔐 Authentication
 
@@ -43,54 +23,58 @@ The application was built with a production-oriented architecture using React, E
 - Persistent Login
 - Secure API Access
 
+---
+
 ### 💳 Transaction Management
 
 - Add / Edit / Delete Transactions
 - Bulk Delete
-- Search
-- Filters
+- Smart Search
+- Advanced Filters
 - Pagination
 - Category Management
 - Payment Methods
 - Recurring Transactions
 
+---
+
 ### 🤖 AI Receipt Intelligence
 
-Upload receipt images and let Gemini AI automatically:
+Upload a receipt image and let **Gemini AI** automatically
 
 - Detect purchased items
 - Extract prices
 - Categorize expenses
 - Generate editable transaction drafts
 
-Supports mixed-category receipts.
+Supports receipts containing multiple expense categories.
 
-Example:
+Example
 
 ```
-Receipt
-
-Milk ........ ₹80
-Medicine ... ₹250
-Shirt ....... ₹799
+Milk          ₹80
+Medicine     ₹250
+Shirt        ₹799
+```
 
 ↓
 
-Grocery ₹80
-Healthcare ₹250
-Shopping ₹799
+```
+Grocery      ₹80
+Healthcare   ₹250
+Shopping     ₹799
 ```
 
-Users can review every transaction before importing.
+Every extracted transaction can be reviewed before saving.
 
 ---
 
-### 📈 Analytics Dashboard
+### 📊 Analytics Dashboard
 
-Interactive dashboard including
+Interactive dashboard featuring
 
-- Income
-- Expenses
+- Total Income
+- Total Expenses
 - Balance
 - Savings Rate
 - Cash Flow Trends
@@ -101,69 +85,145 @@ Interactive dashboard including
 
 ### 📂 CSV Import
 
-Bulk upload transactions from CSV files.
+Bulk upload transactions using CSV files.
 
 ---
 
 ### 📧 AI Monthly Reports
 
-Generate AI-powered financial summaries and send them directly to email.
+Generate AI-powered monthly financial summaries and send them directly to users via email.
 
 ---
 
-## 🏗️ Architecture
+# 💡 Why FinSentry?
+
+Traditional expense trackers require users to manually enter every transaction, making personal finance management repetitive and time-consuming.
+
+FinSentry simplifies this process through AI-powered automation while ensuring users remain in complete control of their financial data.
+
+The project was built with a production-oriented backend architecture focusing on modularity, scalability, validation, and clean API design.
+
+---
+
+# 🏗️ System Architecture
 
 ```
-React Frontend
-        │
- Axios API Layer
-        │
- Express REST API
-        │
-Business Services
-        │
- MongoDB Database
-        │
- Gemini AI
- Cloudinary
- Resend
+                           ┌──────────────────────┐
+                           │     React Client     │
+                           │   Dashboard & UI     │
+                           └──────────┬───────────┘
+                                      │
+                               Axios HTTP Client
+                                      │
+                                      ▼
+                           ┌──────────────────────┐
+                           │    Express Server    │
+                           │  REST API Layer      │
+                           ├──────────────────────┤
+                           │ Authentication       │
+                           │ Validation (Zod)     │
+                           │ Controllers          │
+                           │ Business Services    │
+                           └──────────┬───────────┘
+                                      │
+             ┌───────────────┬────────┴─────────┬────────────┐
+             ▼               ▼                  ▼            ▼
+         MongoDB        Gemini AI        Cloudinary      Node Cron
+             │                                               │
+             └──────────────────────────────┬────────────────┘
+                                            ▼
+                                      Resend Email API
 ```
 
 ---
 
-## 🛠 Tech Stack
+# 🤖 AI Receipt Processing Workflow
 
-### Frontend
+```
+Receipt Image
 
-- React
-- Vite
-- JavaScript
-- Tailwind CSS
-- React Router
-- Axios
-- Context API
-- React Hot Toast
-- Recharts
+      │
 
-### Backend
+      ▼
 
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JWT
-- Zod
-- Multer
-- Cloudinary
-- Gemini AI
-- Resend
-- Node Cron
+Cloudinary Upload
+
+      │
+
+      ▼
+
+Gemini AI Processing
+
+      │
+
+      ▼
+
+Extract Items & Prices
+
+      │
+
+      ▼
+
+Automatic Categorization
+
+      │
+
+      ▼
+
+Generate Transaction Drafts
+
+      │
+
+      ▼
+
+User Review & Approval
+
+      │
+
+      ▼
+
+MongoDB Storage
+```
 
 ---
 
-## 📁 Project Structure
+# ⚙️ Engineering Highlights
 
-```text
+### Authentication
+
+- JWT-based authentication
+- Protected API routes
+- Persistent sessions
+
+### Validation
+
+- Zod request validation
+- Centralized error handling
+- Input sanitization
+
+### Backend Architecture
+
+- Controller-Service pattern
+- Modular route organization
+- Reusable middleware
+- Clean REST API design
+
+### File Processing
+
+- Secure image uploads
+- Cloudinary integration
+- AI-powered receipt parsing
+
+### Scheduled Jobs
+
+- Monthly financial reports
+- Automated email delivery using Node Cron + Resend
+
+---
+
+# 📂 Project Structure
+
+```
 finsentry
 │
 ├── client
@@ -188,12 +248,74 @@ finsentry
 
 ---
 
-## ⚙️ Environment Variables
+# 🛠 Tech Stack
 
-Server requires
+## Frontend
 
-```env
+- React
+- Vite
+- JavaScript
+- Tailwind CSS
+- React Router
+- Axios
+- Context API
+- React Hot Toast
+- Recharts
+
+---
+
+## Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT
+- Zod
+- Multer
+- Node Cron
+
+---
+
+## Third-Party Services
+
+- Google Gemini AI
+- Cloudinary
+- Resend
+
+---
+
+# 🚀 Getting Started
+
+### Clone Repository
+
+```bash
+git clone https://github.com/anupam-devcodes/finsentry.git
+```
+
+### Backend
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+### Frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+---
+
+# 🔑 Environment Variables
+
+```
 PORT=
+
 MONGO_URI=
 
 JWT_SECRET=
@@ -214,97 +336,41 @@ CLIENT_URL=
 
 ---
 
-## 🚀 Installation
+# 🌐 API Overview
 
-Clone the repository
+The backend follows a RESTful architecture with dedicated modules for
 
-```bash
-git clone https://github.com/anupam-devcodes/finsentry.git
-```
+- Authentication
+- User Management
+- Transactions
+- Receipt Processing
+- Analytics
+- Reports
 
-Backend
-
-```bash
-cd server
-npm install
-npm run dev
-```
-
-Frontend
-
-```bash
-cd client
-npm install
-npm run dev
-```
+The API is organized using the Controller-Service pattern for improved maintainability and scalability.
 
 ---
 
-## 🌐 REST API
+# 🚀 Future Improvements
 
-### Authentication
-
-```
-POST /api/auth/register
-POST /api/auth/login
-```
-
-### User
-
-```
-GET /api/users/me
-```
-
-### Analytics
-
-```
-GET /api/analytics/dashboard
-```
-
-### Transactions
-
-```
-GET    /api/transactions
-POST   /api/transactions
-PATCH  /api/transactions/:id
-DELETE /api/transactions/:id
-DELETE /api/transactions/bulk
-POST   /api/transactions/import
-POST   /api/transactions/scan-receipt
-POST   /api/transactions/bulk-create
-POST   /api/transactions/:id/receipt
-```
-
-### Reports
-
-```
-POST /api/reports/monthly/generate
-POST /api/reports/monthly/send
-```
-
----
-
-## 🎯 Future Improvements
-
-- Email Domain Verification
 - Avatar Upload
 - Budget Planning
 - Financial Goals
 - Multi-Currency Support
-- Advanced Analytics
+- Spending Predictions
+- AI Budget Recommendations
 - Mobile PWA
+- Dark Mode
+- OCR Fallback for Low-Quality Receipts
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Anupam Choubey**
 
-GitHub:
-https://github.com/anupam-devcodes
+GitHub: https://github.com/anupam-devcodes
 
 ---
 
-## ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
+If you found this project helpful, consider giving it a ⭐.
